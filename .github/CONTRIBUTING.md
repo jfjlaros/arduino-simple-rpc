@@ -52,7 +52,6 @@ following:
 ## Code Style
 Please follow the coding style conventions detailed below:
 
-- [Arduino Style Guide for Writing Libraries][api].
 - For Python: [PEP 8 - Style Guide for Python Code][pep8].
 
 
@@ -61,4 +60,3 @@ Please follow the coding style conventions detailed below:
 [compare]: https://github.com/jfjlaros/arduino-simple-rpc/compare
 [pull]: https://github.com/jfjlaros/arduino-simple-rpc/pulls
 [pep8]: https://www.python.org/dev/peps/pep-0008/
-[api]: https://www.arduino.cc/en/Reference/APIStyleGuide
