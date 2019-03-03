@@ -79,6 +79,10 @@ All exposed methods can be called like any other class method.
     0
     >>> interface.digital_write(13, True) # Turn LED on.
 
+
+Further reading
+---------------
+
 For more information about the host library and other interfaces, please see
 the :doc:`usage` and :doc:`library` sections.
 
