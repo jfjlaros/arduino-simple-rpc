@@ -1,5 +1,5 @@
-Host library
-============
+Library
+=======
 
 On the host, there are two ways to communicate with the device, either via the
 API library, or via the command line.

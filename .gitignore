@@ -2,9 +2,6 @@
 .cache/
 arduino_simple_rpc.egg-info/
 dist/
-example/device/.build/
 simple_rpc/*.pyc
 simple_rpc/__pycache__/
-tests/*.o
 tests/__pycache__/
-tests/run_tests

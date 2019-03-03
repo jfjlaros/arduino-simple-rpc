@@ -16,10 +16,10 @@ the following commands.
 
 ::
 
-    git clone https://github.com/jfjlaros/simpleRPC.git
-    cd simpleRPC
+    git clone https://github.com/jfjlaros/arduino-simple-rpc.git
+    cd arduino-simple-rpc
     pip install .
 
 
 .. _PyPI: https://pypi.org/project/arduino-simple-rpc
-.. _GitHub: https://github.com/jfjlaros/simpleRPC.git
+.. _GitHub: https://github.com/jfjlaros/arduino-simple-rpc.git
