@@ -1,5 +1,5 @@
-Host installation
-=================
+Installation
+============
 
 The software is distributed via PyPI_, it can be installed with ``pip``:
 

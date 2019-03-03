@@ -4,15 +4,12 @@ from flask_restplus import Resource, Api
 from simple_rpc import Interface
 
 
-app = Flask(__name__)
-api = Api(app)
-
 _types = {'str': 'string'}
 
 code = '''
 @api.route('/{name}/{params}')
 class {name}(Resource):
-    def get(self{args}):
+    def post(self{args}):
         """{doc}"""
         return interface.call_method('{name}'{args})
 '''
@@ -36,6 +33,9 @@ def add_call(method):
 
 
 if __name__ == '__main__':
+    app = Flask(__name__)
+    api = Api(app)
+
     interface = Interface('/dev/ttyACM0')
 
     for method in interface.methods.values():

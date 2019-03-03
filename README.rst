@@ -1,38 +1,35 @@
-Simple RPC implementation for Arduino.
-======================================
+Arduino SimpleRPC Python client
+===============================
 
-.. image:: https://img.shields.io/github/last-commit/jfjlaros/simpleRPC.svg
-   :target: https://github.com/jfjlaros/simpleRPC/graphs/commit-activity
-.. image:: https://travis-ci.org/jfjlaros/simpleRPC.svg?branch=master
-   :target: https://travis-ci.org/jfjlaros/simpleRPC
+.. image:: https://img.shields.io/github/last-commit/jfjlaros/arduino-simple-rpc.svg
+   :target: https://github.com/jfjlaros/arduino-simple-rpc/graphs/commit-activity
+.. image:: https://travis-ci.org/jfjlaros/arduino-simple-rpc.svg?branch=master
+   :target: https://travis-ci.org/jfjlaros/arduino-simple-rpc
 .. image:: https://readthedocs.org/projects/simplerpc/badge/?version=latest
-   :target: https://simpleRPC.readthedocs.io/en/latest
-.. image:: https://img.shields.io/github/release-date/jfjlaros/simpleRPC.svg
-   :target: https://github.com/jfjlaros/simpleRPC/releases
-.. image:: https://img.shields.io/github/release/jfjlaros/simpleRPC.svg
-   :target: https://github.com/jfjlaros/simpleRPC/releases
+   :target: https://arduino-simple-rpc.readthedocs.io/en/latest
+.. image:: https://img.shields.io/github/release-date/jfjlaros/arduino-simple-rpc.svg
+   :target: https://github.com/jfjlaros/arduino-simple-rpc/releases
+.. image:: https://img.shields.io/github/release/jfjlaros/arduino-simple-rpc.svg
+   :target: https://github.com/jfjlaros/arduino-simple-rpc/releases
 .. image:: https://img.shields.io/pypi/v/arduino-simple-rpc.svg
    :target: https://pypi.org/project/arduino-simple-rpc/
-.. image:: https://img.shields.io/github/languages/code-size/jfjlaros/simpleRPC.svg
-   :target: https://github.com/jfjlaros/simpleRPC
-.. image:: https://img.shields.io/github/languages/count/jfjlaros/simpleRPC.svg
-   :target: https://github.com/jfjlaros/simpleRPC
-.. image:: https://img.shields.io/github/languages/top/jfjlaros/simpleRPC.svg
-   :target: https://github.com/jfjlaros/simpleRPC
-.. image:: https://img.shields.io/github/license/jfjlaros/simpleRPC.svg
-   :target: https://raw.githubusercontent.com/jfjlaros/simpleRPC/master/LICENSE.md
+.. image:: https://img.shields.io/github/languages/code-size/jfjlaros/arduino-simple-rpc.svg
+   :target: https://github.com/jfjlaros/arduino-simple-rpc
+.. image:: https://img.shields.io/github/languages/count/jfjlaros/arduino-simple-rpc.svg
+   :target: https://github.com/jfjlaros/arduino-simple-rpc
+.. image:: https://img.shields.io/github/languages/top/jfjlaros/arduino-simple-rpc.svg
+   :target: https://github.com/jfjlaros/arduino-simple-rpc
+.. image:: https://img.shields.io/github/license/jfjlaros/arduino-simple-rpc.svg
+   :target: https://raw.githubusercontent.com/jfjlaros/arduino-simple-rpc/master/LICENSE.md
 
 ----
 
-This library provides a simple way to export Arduino_ functions as remote
-procedure calls. The exported method definitions are communicated to the host,
-which is then able to generate an API interface.
+This library provides a simple way to interface to Arduino_ functions exported
+with the simpleRPC_ protocol. The exported method definitions are communicated
+to the host, which is then able to generate an API interface using this
+library.
 
-For each method, only one additional line of code is needed for exporting. On
-the host, only one function call is needed to perform a remote procedure call.
-
-The Arduino library is independent of any host implementation, we provide a
-Python API library as a reference implementation.
+Only one function call is needed to perform a remote procedure call.
 
 Please see ReadTheDocs_ for the latest documentation.
 
@@ -96,15 +93,10 @@ This is reflected on the host.
     0
     >>> interface.digital_write(13, True)
 
-Please read :doc:`usage_device` for more information about exporting normal
-functions, class member functions and documentation conventions.
-
 For more information about the host library and other interfaces, please see
-the :doc:`usage_host` section.
-
-If you want to create your own host library implementation for other
-programming languages, the section :doc:`protocol` should help you on your way.
+the :doc:`usage` section.
 
 
 .. _Arduino: https://www.arduino.cc
+.. _simpleRPC: https://simpleRPC.readthedocs.io/en/latest/index.html
 .. _ReadTheDocs: https://simpleRPC.readthedocs.io/en/latest/index.html

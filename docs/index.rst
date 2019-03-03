@@ -1,5 +1,3 @@
-.. simpleRPC documentation.
-
 .. include:: ../README.rst
 
 .. toctree::
@@ -7,9 +5,6 @@
    :caption: Contents:
 
    introduction
-   install_device
-   install_host
-   usage_device
-   usage_host
-   protocol
+   install
+   usage
    credits
