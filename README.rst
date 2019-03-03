@@ -29,7 +29,7 @@ with the simpleRPC_ protocol. The exported method definitions are communicated
 to the host, which is then able to generate an API interface using this
 library.
 
-Features:
+**Features:**
 
 - User friendly API library.
 - Command line interface (CLI) for method discovery and testing.
