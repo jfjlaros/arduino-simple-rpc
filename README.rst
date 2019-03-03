@@ -1,4 +1,4 @@
-Arduino SimpleRPC Python client
+Arduino simpleRPC Python client
 ===============================
 
 .. image:: https://img.shields.io/github/last-commit/jfjlaros/arduino-simple-rpc.svg
@@ -98,5 +98,5 @@ the :doc:`usage` section.
 
 
 .. _Arduino: https://www.arduino.cc
-.. _simpleRPC: https://simpleRPC.readthedocs.io/en/latest/index.html
-.. _ReadTheDocs: https://simpleRPC.readthedocs.io/en/latest/index.html
+.. _simpleRPC: https://simpleRPC.readthedocs.io
+.. _ReadTheDocs: https://arduino-simple-rpc.readthedocs.io

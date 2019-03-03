@@ -7,4 +7,5 @@
    introduction
    install
    usage
+   library
    credits
