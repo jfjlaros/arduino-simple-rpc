@@ -36,5 +36,5 @@ Provide any other important details below.
 
 :question:
 
-[1]: https://github.com/jfjlaros/simpleRPC/pulls
-[2]: https://github.com/jfjlaros/simpleRPC/blob/master/docs/CONTRIBUTING.md#code-style
+[1]: https://github.com/jfjlaros/arduino-simple-rpc/pulls
+[2]: https://github.com/jfjlaros/arduino-simple-rpc/blob/master/docs/CONTRIBUTING.md#code-style

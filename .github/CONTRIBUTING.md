@@ -57,8 +57,8 @@ Please follow the coding style conventions detailed below:
 
 
 [email]: mailto:jlaros@fixedpoint.nl
-[issues]: https://github.com/jfjlaros/simpleRPC/issues/new
-[compare]: https://github.com/jfjlaros/simpleRPC/compare
-[pull]: https://github.com/jfjlaros/simpleRPC/pulls
+[issues]: https://github.com/jfjlaros/arduino-simple-rpc/issues/new
+[compare]: https://github.com/jfjlaros/arduino-simple-rpc/compare
+[pull]: https://github.com/jfjlaros/arduino-simple-rpc/pulls
 [pep8]: https://www.python.org/dev/peps/pep-0008/
 [api]: https://www.arduino.cc/en/Reference/APIStyleGuide
