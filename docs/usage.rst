@@ -14,8 +14,9 @@ the ``-h`` option.
 Example
 -------
 
-In our example, the ``list`` subcommand will show a description of the ``inc``
-method and the ``set_led`` method.
+If the Arduino has exposed the functions ``inc`` and ``set_led`` like in the
+example_ given in the device library documentation, the ``list`` subcommand
+will show the following.
 
 .. code::
 
@@ -37,9 +38,12 @@ method and the ``set_led`` method.
         int brightness: Brightness.
 
 
-A method can be called by using the ``call`` subcommand.
+Any of these methods can be called by using the ``call`` subcommand.
 
 .. code::
 
     $ simple_rpc call inc 1
     2
+
+
+.. _example: https://simplerpc.readthedocs.io/en/latest/usage_device.html#example

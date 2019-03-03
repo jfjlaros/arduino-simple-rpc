@@ -1,5 +1,5 @@
-Arduino simpleRPC Python client
-===============================
+Arduino simpleRPC API client library and CLI
+============================================
 
 .. image:: https://img.shields.io/github/last-commit/jfjlaros/arduino-simple-rpc.svg
    :target: https://github.com/jfjlaros/arduino-simple-rpc/graphs/commit-activity
@@ -29,7 +29,13 @@ with the simpleRPC_ protocol. The exported method definitions are communicated
 to the host, which is then able to generate an API interface using this
 library.
 
-Only one function call is needed to perform a remote procedure call.
+Features:
+
+- User friendly API library.
+- Command line interface (CLI) for method discovery and testing.
+- Function and parameter names are defined on the Arduino.
+- API documentation is defined on the Arduino.
+- Support for disconnecting and reconnecting.
 
 Please see ReadTheDocs_ for the latest documentation.
 
@@ -37,45 +43,21 @@ Please see ReadTheDocs_ for the latest documentation.
 Quick start
 -----------
 
-Export any function e.g., ``digitalRead()`` and ``digitalWrite()`` using the
-``interface()`` function.
+Export any function e.g., ``digitalRead()`` and ``digitalWrite()`` on the
+Arduino, these functions will show up as member functions of the ``Interface``
+class instance.
 
-.. code:: cpp
-
-    #include <simpleRPC.h>
-
-    void setup(void) {
-      Serial.begin(9600);
-    }
-
-    void loop(void) {
-      interface(digitalRead, "", digitalWrite, "");
-    }
-
-These functions are now available on the host under name ``method2()`` and
-``method3()``.
+First, we make an ``Interface`` class instance and tell it to connect to the
+serial device ``/dev/ttyACM0``.
 
 .. code:: python
 
     >>> from simple_rpc import Interface
     >>> 
     >>> interface = Interface('/dev/ttyACM0')
-    >>> 
-    >>> interface.method2(8)
-    0
-    >>> interface.method3(13, True)
 
-The documentation string can be used to name and describe the method.
-
-.. code:: cpp
-
-    interface(
-      digitalRead,
-        "digital_read: Read digital pin. @pin: Pin number. @return: Pin value.",
-      digitalWrite,
-        "digital_write: Write to a digital pin. @pin: Pin number. @value: Pin value.");
-
-This is reflected on the host.
+We can use the built-in ``help()`` function to see the API documentation of any
+exported method.
 
 .. code:: python
 
@@ -89,12 +71,16 @@ This is reflected on the host.
 
         :returns int: Pin value.
 
-    >>> interface.digital_read(8)
+All exposed methods can be called like any other class method.
+
+.. code:: python
+
+    >>> interface.digital_read(8)         # Read from pin 8.
     0
-    >>> interface.digital_write(13, True)
+    >>> interface.digital_write(13, True) # Turn LED on.
 
 For more information about the host library and other interfaces, please see
-the :doc:`usage` section.
+the :doc:`usage` and :doc:`library` sections.
 
 
 .. _Arduino: https://www.arduino.cc

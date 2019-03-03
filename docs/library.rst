@@ -106,8 +106,9 @@ contains the definitions of the exported methods.
 Example
 -------
 
-In our example we have exported the ``inc`` method, which is now present as a
-class method of the ``interface`` class instance.
+In the example_ given in the device library documentation, the ``inc`` method
+is exported, which is now present as a class method of the ``Interface`` class
+instance.
 
 .. code:: python
 
@@ -136,3 +137,6 @@ function can be used.
         :arg int a: Value.
 
         :returns int: a + 1.
+
+
+.. _example: https://simplerpc.readthedocs.io/en/latest/usage_device.html#example
