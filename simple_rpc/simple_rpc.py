@@ -46,6 +46,37 @@ def _strip_split(string, delimiter):
     return list(map(lambda x: x.strip(), string.split(delimiter)))
 
 
+def _parse_object_definition(object_definition, offset):
+    """Parse an object definition.
+
+    :arg str object_definition: Object definition.
+    :arg int offset: Offset in {object_definition}.
+
+    :returns list: Nested object.
+    """
+    result = []
+    i = offset
+
+    while i < len(object_definition):
+        if object_definition[i] == '[':
+            i, r = _parse_object_definition(object_definition, i + 1)
+            result.append(r)
+        elif object_definition[i] != ']':
+            if result and isinstance(result[-1], str):
+                result[-1] += object_definition[i]
+            else:
+                result.append(object_definition[i])
+            i += 1;
+        else:
+            break
+
+    return i + 1, result
+
+
+def _parse_object(object_definition):
+    return _parse_object_definition(object_definition, 0)[1][0]
+
+
 def _parse_signature(index, signature):
     """Parse a C function signature string.
 
