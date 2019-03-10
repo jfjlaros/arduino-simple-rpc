@@ -8,7 +8,7 @@ from serial.serialutil import SerialException
 from .extras import _make_function
 
 
-_version = '2.0.1'
+_version = (2, 0, 1)
 
 _list_req = 0xff
 _end_of_string = '\0'
@@ -223,11 +223,12 @@ class Interface(object):
             setattr(
                 self, method['name'], MethodType(_make_function(method), self))
 
-        device_version = self.call_method('version')
-        if device_version != _version:
+        device_version = list(map(int, self.call_method('version').split('.')))
+        if device_version[0] != _version[0] or device_version[1] > _version[1]:
             raise ValueError(
                 'version mismatch (device: {}, client: {})'.format(
-                    device_version, _version))
+                    '.'.join(map(str, device_version)),
+                    '.'.join(map(str, _version))))
 
     def close(self):
         """Disconnect from serial device."""
