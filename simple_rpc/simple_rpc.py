@@ -46,35 +46,89 @@ def _strip_split(string, delimiter):
     return list(map(lambda x: x.strip(), string.split(delimiter)))
 
 
-def _parse_object_definition(object_definition, offset):
-    """Parse an object definition.
+#def _parse_object_definition(object_definition, offset):
+#    """Parse an object definition.
+#
+#    :arg str object_definition: Object definition.
+#    :arg int offset: Offset in {object_definition}.
+#
+#    :returns list: Nested object.
+#    """
+#    result = []
+#    i = offset
+#
+#    while i < len(object_definition):
+#        if object_definition[i] == '[':
+#            i, r = _parse_object_definition(object_definition, i + 1)
+#            result.append(r)
+#        elif object_definition[i] != ']':
+#            if result and isinstance(result[-1], str):
+#                result[-1] += object_definition[i]
+#            else:
+#                result.append(object_definition[i])
+#            i += 1;
+#        else:
+#            break
+#
+#    return i + 1, result
+#
+#
+#def _parse_object(object_definition):
+#    return _parse_object_definition(object_definition, 0)[1][0]
 
-    :arg str object_definition: Object definition.
-    :arg int offset: Offset in {object_definition}.
 
-    :returns list: Nested object.
+def parse_type(type_str):
+    """Parse a type definition string.
+
+    @arg str type_str: Type definition string.
+
+    @returns any: Type object.
     """
-    result = []
-    i = offset
+    def _construct_type(tokens):
+        type_ = []
 
-    while i < len(object_definition):
-        if object_definition[i] == '[':
-            i, r = _parse_object_definition(object_definition, i + 1)
-            result.append(r)
-        elif object_definition[i] != ']':
-            if result and isinstance(result[-1], str):
-                result[-1] += object_definition[i]
+        for token in tokens:
+            if token == '[':
+                type_.append(_construct_type(tokens))
+            elif token == '(':
+                type_.append(tuple(_construct_type(tokens)))
+            elif token in (')', ']'):
+                break
             else:
-                result.append(object_definition[i])
-            i += 1;
-        else:
-            break
+                type_.append(token)
 
-    return i + 1, result
+        return type_
+
+    return _construct_type((char for char in type_str))[0]
 
 
-def _parse_object(object_definition):
-    return _parse_object_definition(object_definition, 0)[1][0]
+def read(obj_type):
+    """Read an object.
+
+    @arg any obj_type: Type object.
+
+    @returns any: Object of type {obj_type}.
+    """
+    if isinstance(obj_type, list):
+        return [read(item) for _ in range(int(_read())) for item in obj_type]
+    if isinstance(obj_type, tuple):
+        return tuple(read(item) for item in obj_type)
+    return _read()
+
+
+def write(obj_type, obj):
+    """Write an objet.
+
+    @arg any obj_type: Type object.
+    @arg any obj: Object of type {obj_type}.
+    """
+    if isinstance(obj_type, list):
+        print(len(obj) // len(obj_type))
+    if isinstance(obj_type, list) or isinstance(obj_type, tuple):
+        for item_type, item in zip(obj_type * len(obj), obj):
+            write(item_type, item)
+    else:
+        print(obj)
 
 
 def _parse_signature(index, signature):
