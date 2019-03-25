@@ -1,22 +1,6 @@
 from struct import calcsize, pack, unpack
 
-from .io import end_of_string
-
-
-def _cast(c_type):
-    """Select the appropriate casting function given a C type.
-
-    :arg bytes c_type: C type.
-
-    :returns obj: Casting function.
-    """
-    if c_type[0] == b'?':
-        return bool
-    if c_type[0] in [b'c', b's']:
-        return str
-    if c_type[-1] in [b'f', b'd']:
-        return float
-    return int
+from .io import cast, end_of_string
 
 
 def parse_type(type_str):
@@ -41,7 +25,7 @@ def parse_type(type_str):
 
         return type_
 
-    return _construct_type((char for char in type_str))[0]
+    return _construct_type((bytes([char]) for char in type_str))
 
 
 def _type_name(c_type):
@@ -53,7 +37,7 @@ def _type_name(c_type):
     """
     if not c_type:
         return ''
-    return _cast(c_type).__name__
+    return cast(c_type).__name__
 
 
 def _parse_signature(index, signature):
