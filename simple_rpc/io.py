@@ -1,7 +1,23 @@
 from struct import calcsize, pack, unpack
 
 
-end_of_string = b'\x00'
+end_of_string = b'\0'
+
+
+def _cast(c_type):
+    """Select the appropriate casting function given a C type.
+
+    :arg bytes c_type: C type.
+
+    :returns obj: Casting function.
+    """
+    if c_type == b'?':
+        return bool
+    if c_type in [b'c', b's']:
+        return bytes
+    if c_type in [b'f', b'd']:
+        return float
+    return int
 
 
 def _read_bytes_until(stream, delimiter):
@@ -15,7 +31,7 @@ def _read_bytes_until(stream, delimiter):
     data = b''
 
     while True:
-        char = stream.read()
+        char = stream.read(1)
         if char == delimiter:
             break
         data += char
