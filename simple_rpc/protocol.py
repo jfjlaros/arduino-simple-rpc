@@ -1,4 +1,4 @@
-from .io import cast
+from .io import cast, read_byte_string
 
 
 def _parse_type(type_str):
@@ -9,21 +9,27 @@ def _parse_type(type_str):
     :returns any: Type object.
     """
     def _construct_type(tokens):
-        type_ = []
+        obj_type = []
 
         for token in tokens:
             if token == b'[':
-                type_.append(_construct_type(tokens))
+                obj_type.append(_construct_type(tokens))
             elif token == b'(':
-                type_.append(tuple(_construct_type(tokens)))
+                obj_type.append(tuple(_construct_type(tokens)))
             elif token in (b')', b']'):
                 break
             else:
-                type_.append(token)
+                obj_type.append(token)
 
-        return type_
+        return obj_type
 
-    return _construct_type((bytes([char]) for char in type_str))
+    obj_type = _construct_type((bytes([char]) for char in type_str))
+
+    if len(obj_type) > 1:
+        raise ValueError('top level type can not be tuple')
+    if not obj_type:
+        return b''
+    return obj_type[0]
 
 
 def _type_name(obj_type):
@@ -34,7 +40,7 @@ def _type_name(obj_type):
     :returns str: Python type name.
     """
     if not obj_type:
-        return []
+        return ''
     if isinstance(obj_type, list):
         return [_type_name(item) for item in obj_type]
     if isinstance(obj_type, tuple):
@@ -117,3 +123,7 @@ def parse_line(index, line):
     _add_doc(method, description)
 
     return method
+
+
+def hardware_defs(stream):
+    return (bytes([char]) for char in read_byte_string())

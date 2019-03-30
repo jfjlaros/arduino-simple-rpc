@@ -1,9 +1,20 @@
 from argparse import ArgumentParser, FileType, RawDescriptionHelpFormatter
-from time import sleep
+from json import dumps, loads
 from sys import stdout
+from time import sleep
 
 from . import doc_split, usage, version
 from .simple_rpc import Interface
+
+
+def _json_utf8(obj):
+    if isinstance(obj, str):
+        return obj.encode('utf-8')
+    if isinstance(obj, bytes):
+        return obj.decode('utf-8')
+    if isinstance(obj, list) or isinstance(obj, tuple):
+        return [_json_utf8(item) for item in obj]
+    return obj
 
 
 def _describe_method(method):
@@ -61,11 +72,13 @@ def rpc_call(handle, device, baudrate, wait, name, args):
     :arg str name: Method name.
     :arg list args: Method parameters.
     """
+    args_ = list(map(lambda x: _json_utf8(loads(x)), args))
+
     with Interface(device, baudrate, wait) as interface:
-        result = interface.call_method(name, *args)
+        result = interface.call_method(name, *args_)
 
         if result != None:
-            handle.write('{}\n'.format(result))
+            handle.write('{}\n'.format(dumps(_json_utf8(result))))
 
 
 def main():

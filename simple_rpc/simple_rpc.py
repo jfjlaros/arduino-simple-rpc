@@ -30,7 +30,7 @@ class Interface(object):
         self._connection = Serial(baudrate=baudrate)
         self._version = (0, 0, 0)
         self._endianness = b'<'
-        self._size_t = 0
+        self._size_t = b'H'
         self.methods = {}
 
         if autoconnect:
@@ -88,16 +88,16 @@ class Interface(object):
                     '.'.join(map(str, self._version)),
                     '.'.join(map(str, _version))))
 
-        self._endianness, self._size_t = self._read_byte_string()
+        self._endianness, self._size_t = (
+            bytes([c]) for c in self._read_byte_string())
 
         methods = {}
         index = 0
-        while True:
-            line = self._read_byte_string()
-            if not line:
-                break
+        line = self._read_byte_string()
+        while line:
             method = parse_line(index, line)
             methods[method['name']] = method
+            line = self._read_byte_string()
             index += 1
 
         return methods

@@ -3,61 +3,61 @@ from simple_rpc.protocol import (
     parse_line)
 
 
+def test_parse_type_none():
+    assert _parse_type(b'') == b''
+
+
 def test_parse_type_basic():
-    assert _parse_type(b'i') == [b'i']
+    assert _parse_type(b'i') == b'i'
 
 
-def test_parse_type_tuple_basic():
-    assert _parse_type(b'ic') == [b'i', b'c']
-
+def test_parse_type_tuple():
+    try:
+        _parse_type(b'ic')
+    except ValueError as error:
+        assert str(error) == 'top level type can not be tuple'
+    else:
+        assert False
 
 def test_parse_type_list_basic():
-    assert _parse_type(b'[i]') == [[b'i']]
+    assert _parse_type(b'[i]') == [b'i']
 
 
 def test_parse_type_object_basic():
-    assert _parse_type(b'(i)') == [(b'i', )]
-
-
-def test_parse_type_tuple_list():
-    assert _parse_type(b'[i]c') == [[b'i'], b'c']
-
-
-def test_parse_type_tuple_object():
-    assert _parse_type(b'(i)c') == [(b'i', ), b'c']
+    assert _parse_type(b'(i)') == (b'i', )
 
 
 def test_parse_type_list_tuple():
-    assert _parse_type(b'[ic]') == [[b'i', b'c']]
+    assert _parse_type(b'[ic]') == [b'i', b'c']
 
 
 def test_parse_type_list_object():
-    assert _parse_type(b'[(ic)]') == [[(b'i', b'c')]]
+    assert _parse_type(b'[(ic)]') == [(b'i', b'c')]
 
 
 def test_parse_type_list_list():
-    assert _parse_type(b'[[i]]') == [[[b'i']]]
+    assert _parse_type(b'[[i]]') == [[b'i']]
 
 
 def test_parse_type_object_tuple():
-    assert _parse_type(b'(ic)') == [(b'i', b'c')]
+    assert _parse_type(b'(ic)') == (b'i', b'c')
 
 
 def test_parse_type_object_list():
-    assert _parse_type(b'([i])') == [([b'i'], )]
+    assert _parse_type(b'([i])') == ([b'i'], )
 
 
 def test_parse_type_object_object():
-    assert _parse_type(b'((ic))') == [((b'i', b'c'), )]
+    assert _parse_type(b'((ic))') == ((b'i', b'c'), )
 
 
 def test_parse_type_complex():
-    assert _parse_type(b'((cc)c)i([c])') == [
-        ((b'c', b'c'), b'c'), b'i', ([b'c'], )]
+    assert _parse_type(b'(((cc)c)i([c]))') == (
+        ((b'c', b'c'), b'c'), b'i', ([b'c'], ), )
 
 
 def test_type_name_none():
-    assert _type_name(None) == []
+    assert _type_name(None) == ''
 
 
 def test_type_name_basic():
@@ -91,23 +91,23 @@ def test_parse_signature_basic():
         'index': 1,
         'name': 'method1',
         'parameters': [{
-            'doc': '', 'fmt': [b'c'], 'name': 'arg0', 'typename': ['bytes']}, {
-            'doc': '', 'fmt': [b'f'], 'name': 'arg1', 'typename': ['float']}],
-        'return': {'doc': '', 'fmt': [], 'typename': []}}
+            'doc': '', 'fmt': b'c', 'name': 'arg0', 'typename': 'bytes'}, {
+            'doc': '', 'fmt': b'f', 'name': 'arg1', 'typename': 'float'}],
+        'return': {'doc': '', 'fmt': b'', 'typename': ''}}
 
 
 def test_parse_signature_complex():
-    assert _parse_signature(2, b'ff: [c] (cf)') == {
+    assert _parse_signature(2, b'(ff): [c] (cf)') == {
         'doc': '',
         'index': 2,
         'name': 'method2',
         'parameters': [{
-            'doc': '', 'fmt': [[b'c']], 'name': 'arg0',
-                'typename': [['bytes']]}, {
-            'doc': '', 'fmt': [(b'c', b'f'), ], 'name': 'arg1',
-                'typename': [('bytes', 'float'),]}],
-        'return': {'doc': '', 'fmt': [b'f', b'f'],
-            'typename': ['float', 'float']}}
+            'doc': '', 'fmt': [b'c'], 'name': 'arg0',
+                'typename': ['bytes']}, {
+            'doc': '', 'fmt': (b'c', b'f'), 'name': 'arg1',
+                'typename': ('bytes', 'float')}],
+        'return': {'doc': '', 'fmt': (b'f', b'f'),
+            'typename': ('float', 'float')}}
 
 
 def test_split_strip():
