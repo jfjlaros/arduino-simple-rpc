@@ -28,16 +28,20 @@ def parse_type(type_str):
     return _construct_type((bytes([char]) for char in type_str))
 
 
-def _type_name(c_type):
+def _type_name(obj_type):
     """Python type name of a C type.
 
     :arg bytes c_type: C type.
 
     :returns str: Python type name.
     """
-    if not c_type:
-        return ''
-    return cast(c_type).__name__
+    if not obj_type:
+        return []
+    if isinstance(obj_type, list):
+        return [_type_name(item) for item in obj_type]
+    if isinstance(obj_type, tuple):
+        return tuple(_type_name(item) for item in obj_type)
+    return cast(obj_type).__name__
 
 
 def _parse_signature(index, signature):
@@ -55,13 +59,15 @@ def _parse_signature(index, signature):
         'parameters': [],
         'return': {'doc': ''}}
 
-    method['return']['fmt'], parameters = signature.split(b':')
+    fmt, parameters = signature.split(b':')
+    method['return']['fmt'] = parse_type(fmt)
     method['return']['typename'] = _type_name(method['return']['fmt'])
 
-    for i, type_ in enumerate(parameters.split()):
+    for index, fmt in enumerate(parameters.split()):
+        type_ = parse_type(fmt)
         method['parameters'].append({
             'doc': '',
-            'name': 'arg{}'.format(i),
+            'name': 'arg{}'.format(index),
             'fmt': type_,
             'typename': _type_name(type_)})
 
@@ -78,7 +84,8 @@ def _add_doc(method, doc):
     :arg dict method: Method object.
     :arg str doc: Method documentation.
     """
-    parts = list(map(lambda x: _strip_split(x, ':'), doc.split('@')))
+    parts = list(map(
+        lambda x: _strip_split(x, ':'), doc.decode('utf-8').split('@')))
 
     if list(map(lambda x: len(x), parts)) != [2] * len(parts):
         return
