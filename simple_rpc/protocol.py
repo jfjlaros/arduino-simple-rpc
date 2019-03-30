@@ -1,9 +1,7 @@
-from struct import calcsize, pack, unpack
-
-from .io import cast, end_of_string
+from .io import cast
 
 
-def parse_type(type_str):
+def _parse_type(type_str):
     """Parse a type definition string.
 
     :arg bytes type_str: Type definition string.
@@ -60,11 +58,11 @@ def _parse_signature(index, signature):
         'return': {'doc': ''}}
 
     fmt, parameters = signature.split(b':')
-    method['return']['fmt'] = parse_type(fmt)
+    method['return']['fmt'] = _parse_type(fmt)
     method['return']['typename'] = _type_name(method['return']['fmt'])
 
     for index, fmt in enumerate(parameters.split()):
-        type_ = parse_type(fmt)
+        type_ = _parse_type(fmt)
         method['parameters'].append({
             'doc': '',
             'name': 'arg{}'.format(index),
@@ -105,7 +103,7 @@ def _add_doc(method, doc):
             method['return']['doc'] = description
 
 
-def _parse_line(index, line):
+def parse_line(index, line):
     """Parse a method definition line.
 
     :arg int index: Line number.
@@ -113,7 +111,7 @@ def _parse_line(index, line):
 
     :returns dict: Method object.
     """
-    signature, description = line.strip(end_of_string).split(b';', 1)
+    signature, description = line.split(b';', 1)
 
     method = _parse_signature(index, signature)
     _add_doc(method, description)

@@ -1,204 +1,18 @@
-from struct import calcsize, pack, unpack
 from time import sleep
 from types import MethodType
 
 from serial import Serial
 from serial.serialutil import SerialException
 
-from .extras import _make_function
+from .extras import make_function
+from .io import read, read_byte_string, write
+from .protocol import parse_line
 
 
-_version = (2, 0, 1)
+_protocol = b'simpleRPC'
+_version = (3, 0, 0)
 
 _list_req = 0xff
-_end_of_string = '\0'
-
-
-def _cast(c_type):
-    """Select the appropriate casting function given a C type.
-
-    :arg str c_type: C type.
-
-    :returns obj: Casting function.
-    """
-    if c_type[0] == '?':
-        return bool
-    if c_type[0] in ['c', 's']:
-        return str
-    if c_type[-1] in ['f', 'd']:
-        return float
-    return int
-
-
-def _type_name(c_type):
-    """Python type name of a C type.
-
-    :arg str c_type: C type.
-
-    :returns str: Python type name.
-    """
-    if not c_type:
-        return ''
-    return _cast(c_type).__name__
-
-
-def _strip_split(string, delimiter):
-    return list(map(lambda x: x.strip(), string.split(delimiter)))
-
-
-#def _parse_object_definition(object_definition, offset):
-#    """Parse an object definition.
-#
-#    :arg str object_definition: Object definition.
-#    :arg int offset: Offset in {object_definition}.
-#
-#    :returns list: Nested object.
-#    """
-#    result = []
-#    i = offset
-#
-#    while i < len(object_definition):
-#        if object_definition[i] == '[':
-#            i, r = _parse_object_definition(object_definition, i + 1)
-#            result.append(r)
-#        elif object_definition[i] != ']':
-#            if result and isinstance(result[-1], str):
-#                result[-1] += object_definition[i]
-#            else:
-#                result.append(object_definition[i])
-#            i += 1;
-#        else:
-#            break
-#
-#    return i + 1, result
-#
-#
-#def _parse_object(object_definition):
-#    return _parse_object_definition(object_definition, 0)[1][0]
-
-
-def parse_type(type_str):
-    """Parse a type definition string.
-
-    @arg str type_str: Type definition string.
-
-    @returns any: Type object.
-    """
-    def _construct_type(tokens):
-        type_ = []
-
-        for token in tokens:
-            if token == '[':
-                type_.append(_construct_type(tokens))
-            elif token == '(':
-                type_.append(tuple(_construct_type(tokens)))
-            elif token in (')', ']'):
-                break
-            else:
-                type_.append(token)
-
-        return type_
-
-    return _construct_type((char for char in type_str))[0]
-
-
-def read(obj_type):
-    """Read an object.
-
-    @arg any obj_type: Type object.
-
-    @returns any: Object of type {obj_type}.
-    """
-    if isinstance(obj_type, list):
-        return [read(item) for _ in range(int(_read())) for item in obj_type]
-    if isinstance(obj_type, tuple):
-        return tuple(read(item) for item in obj_type)
-    return _read()
-
-
-def write(obj_type, obj):
-    """Write an objet.
-
-    @arg any obj_type: Type object.
-    @arg any obj: Object of type {obj_type}.
-    """
-    if isinstance(obj_type, list):
-        print(len(obj) // len(obj_type))
-    if isinstance(obj_type, list) or isinstance(obj_type, tuple):
-        for item_type, item in zip(obj_type * len(obj), obj):
-            write(item_type, item)
-    else:
-        print(obj)
-
-
-def _parse_signature(index, signature):
-    """Parse a C function signature string.
-
-    :arg int index: Function index.
-    :arg str signature: Function signature.
-
-    :returns dict: Method object.
-    """
-    method = {
-        'doc': '',
-        'index': index,
-        'name': 'method{}'.format(index),
-        'parameters': [],
-        'return': {'doc': ''}}
-
-    method['return']['fmt'], parameters = signature.split(':')
-    method['return']['typename'] = _type_name(method['return']['fmt'])
-
-    for i, type_ in enumerate(parameters.split()):
-        method['parameters'].append({
-            'doc': '',
-            'name': 'arg{}'.format(i),
-            'fmt': type_,
-            'typename': _type_name(type_)})
-
-    return method
-
-
-def _add_doc(method, doc):
-    """Add documentation to a method object.
-
-    :arg dict method: Method object.
-    :arg str doc: Method documentation.
-    """
-    parts = list(map(lambda x: _strip_split(x, ':'), doc.split('@')))
-
-    if list(map(lambda x: len(x), parts)) != [2] * len(parts):
-        return
-
-    method['name'], method['doc'] = parts[0]
-
-    index = 0
-    for part in parts[1:]:
-        name, description = part
-
-        if name != 'return':
-            if index < len(method['parameters']):
-                method['parameters'][index]['name'] = name
-                method['parameters'][index]['doc'] = description
-            index += 1
-        else:
-            method['return']['doc'] = description
-
-
-def _parse_line(index, line):
-    """Parse a method definition line.
-
-    :arg int index: Line number.
-    :arg str line: Method definition.
-
-    :returns dict: Method object.
-    """
-    signature, description = line.strip(_end_of_string).split(';', 1)
-
-    method = _parse_signature(index, signature)
-    _add_doc(method, description)
-
-    return method
 
 
 class Interface(object):
@@ -214,6 +28,9 @@ class Interface(object):
         self._wait = wait
 
         self._connection = Serial(baudrate=baudrate)
+        self._version = (0, 0, 0)
+        self._endianness = b'<'
+        self._size_t = 0
         self.methods = {}
 
         if autoconnect:
@@ -225,52 +42,34 @@ class Interface(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-    def _read_str(self):
-        """Read a delimited string from serial.
-
-        :returns str: String.
-        """
-        data = ''
-
-        while True:
-            char = self._connection.read().decode('utf-8')
-            if char == _end_of_string:
-                break
-            data += char
-
-        return data
-
     def _select(self, index):
         """Initiate a remote procedure call, select the method.
 
         :arg int index: Method index.
         """
-        self._connection.write(pack('B', index))
+        self._write(b'B', index)
 
-    def _write_parameter(self, param_type, param_value):
+    def _write(self, obj_type, obj):
         """Provide parameters for a remote procedure call.
 
-        :arg str param_type: Type of the parameter.
-        :arg any param_value: Value of the parameter.
+        :arg bytes obj_type: Type of the parameter.
+        :arg any obj: Value of the parameter.
         """
-        if param_type == 's':
-            self._connection.write(
-                (param_value + _end_of_string).encode('utf-8'))
-            return
-        self._connection.write(
-            pack(param_type, _cast(param_type)(param_value)))
+        write(
+            self._connection, self._endianness, self._size_t, obj_type, obj)
 
-    def _read_value(self, return_type):
+    def _read_byte_string(self):
+        return read_byte_string(self._connection)
+
+    def _read(self, obj_type):
         """Read a return value from a remote procedure call.
 
-        :arg str return_type: Return type.
+        :arg str obj_type: Return type.
 
         :returns any: Return value.
         """
-        if return_type == 's':
-            return self._read_str()
-        return unpack(
-            return_type, self._connection.read(calcsize(return_type)))[0]
+        return read(
+            self._connection, self._endianness, self._size_t, obj_type)
 
     def _get_methods(self):
         """Get remote procedure call methods.
@@ -279,13 +78,25 @@ class Interface(object):
         """
         self._select(_list_req)
 
+        if self._read_byte_string() != _protocol:
+            raise ValueError('missing protocol header')
+
+        self._version = tuple(self._read(b'B') for _ in range(3))
+        if self._version[0] != _version[0] or self._version[1] > _version[1]:
+            raise ValueError(
+                'version mismatch (device: {}, client: {})'.format(
+                    '.'.join(map(str, self._version)),
+                    '.'.join(map(str, _version))))
+
+        self._endianness, self._size_t = self._read_byte_string()
+
         methods = {}
         index = 0
         while True:
-            line = self._read_str()
+            line = self._read_byte_string()
             if not line:
                 break
-            method = _parse_line(index, line)
+            method = parse_line(index, line)
             methods[method['name']] = method
             index += 1
 
@@ -306,14 +117,7 @@ class Interface(object):
         self.methods = self._get_methods()
         for method in self.methods.values():
             setattr(
-                self, method['name'], MethodType(_make_function(method), self))
-
-        device_version = list(map(int, self.call_method('version').split('.')))
-        if device_version[0] != _version[0] or device_version[1] > _version[1]:
-            raise ValueError(
-                'version mismatch (device: {}, client: {})'.format(
-                    '.'.join(map(str, device_version)),
-                    '.'.join(map(str, _version))))
+                self, method['name'], MethodType(make_function(method), self))
 
     def close(self):
         """Disconnect from serial device."""
@@ -357,9 +161,9 @@ class Interface(object):
         # Provide parameters (if any).
         if method['parameters']:
             for index, parameter in enumerate(method['parameters']):
-                self._write_parameter(parameter['fmt'], args[index])
+                self._write(parameter['fmt'], args[index])
 
         # Read return value (if any).
         if method['return']['fmt']:
-            return self._read_value(method['return']['fmt'])
+            return self._read(method['return']['fmt'])
         return None

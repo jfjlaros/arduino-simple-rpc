@@ -34,7 +34,7 @@ def _make_docstring(method):
     return help_text
 
 
-def _make_function(method):
+def make_function(method):
     """Make a member function for a method.
 
     :arg dict method: Method object.

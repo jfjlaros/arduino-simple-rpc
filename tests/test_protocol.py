@@ -1,58 +1,58 @@
 from simple_rpc.protocol import (
-    _add_doc, _parse_line, _parse_signature, _strip_split, _type_name,
-    parse_type)
+    _add_doc, _parse_signature, _strip_split, _type_name, _parse_type,
+    parse_line)
 
 
 def test_parse_type_basic():
-    assert parse_type(b'i') == [b'i']
+    assert _parse_type(b'i') == [b'i']
 
 
 def test_parse_type_tuple_basic():
-    assert parse_type(b'ic') == [b'i', b'c']
+    assert _parse_type(b'ic') == [b'i', b'c']
 
 
 def test_parse_type_list_basic():
-    assert parse_type(b'[i]') == [[b'i']]
+    assert _parse_type(b'[i]') == [[b'i']]
 
 
 def test_parse_type_object_basic():
-    assert parse_type(b'(i)') == [(b'i', )]
+    assert _parse_type(b'(i)') == [(b'i', )]
 
 
 def test_parse_type_tuple_list():
-    assert parse_type(b'[i]c') == [[b'i'], b'c']
+    assert _parse_type(b'[i]c') == [[b'i'], b'c']
 
 
 def test_parse_type_tuple_object():
-    assert parse_type(b'(i)c') == [(b'i', ), b'c']
+    assert _parse_type(b'(i)c') == [(b'i', ), b'c']
 
 
 def test_parse_type_list_tuple():
-    assert parse_type(b'[ic]') == [[b'i', b'c']]
+    assert _parse_type(b'[ic]') == [[b'i', b'c']]
 
 
 def test_parse_type_list_object():
-    assert parse_type(b'[(ic)]') == [[(b'i', b'c')]]
+    assert _parse_type(b'[(ic)]') == [[(b'i', b'c')]]
 
 
 def test_parse_type_list_list():
-    assert parse_type(b'[[i]]') == [[[b'i']]]
+    assert _parse_type(b'[[i]]') == [[[b'i']]]
 
 
 def test_parse_type_object_tuple():
-    assert parse_type(b'(ic)') == [(b'i', b'c')]
+    assert _parse_type(b'(ic)') == [(b'i', b'c')]
 
 
 def test_parse_type_object_list():
-    assert parse_type(b'([i])') == [([b'i'], )]
+    assert _parse_type(b'([i])') == [([b'i'], )]
 
 
 def test_parse_type_object_object():
-    assert parse_type(b'((ic))') == [((b'i', b'c'), )]
+    assert _parse_type(b'((ic))') == [((b'i', b'c'), )]
 
 
 def test_parse_type_complex():
-    assert parse_type(b'((cc)c)i([c])') == [
+    assert _parse_type(b'((cc)c)i([c])') == [
         ((b'c', b'c'), b'c'), b'i', ([b'c'], )]
 
 
@@ -147,7 +147,7 @@ def test_add_doc_missing_parameter():
 
 
 def test_parse_line():
-    method = _parse_line(
+    method = parse_line(
         1, b'i: c f;name: Test. @p1: Char. @p2: Float. @return: Int.')
 
     assert method['index'] == 1

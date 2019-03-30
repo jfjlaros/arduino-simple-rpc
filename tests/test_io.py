@@ -1,7 +1,7 @@
 from io import BytesIO
 
 from simple_rpc.io import (
-    _read_basic, _read_bytes_until, _write_basic, cast, end_of_string, read,
+    _end_of_string, _read_basic, _read_bytes_until, _write_basic, cast, read,
     write)
 
 
@@ -39,7 +39,7 @@ def test_cast():
 def test_read_bytes_until():
     stream = BytesIO(b'abcdef\0abc')
 
-    assert _read_bytes_until(stream, end_of_string) == b'abcdef'
+    assert _read_bytes_until(stream, _end_of_string) == b'abcdef'
 
 
 def test_basic_string():

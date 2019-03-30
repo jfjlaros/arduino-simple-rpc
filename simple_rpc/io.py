@@ -1,23 +1,7 @@
 from struct import calcsize, pack, unpack
 
 
-end_of_string = b'\0'
-
-
-def cast(c_type):
-    """Select the appropriate casting function given a C type.
-
-    :arg bytes c_type: C type.
-
-    :returns obj: Casting function.
-    """
-    if c_type == b'?':
-        return bool
-    if c_type in [b'c', b's']:
-        return bytes
-    if c_type in [b'f', b'd']:
-        return float
-    return int
+_end_of_string = b'\0'
 
 
 def _read_bytes_until(stream, delimiter):
@@ -49,11 +33,44 @@ def _read_basic(stream, endianness, basic_type):
     :returns any: Value of type {basic_type}.
     """
     if basic_type == b's':
-        return _read_bytes_until(stream, end_of_string)
+        return _read_bytes_until(stream, _end_of_string)
 
     full_type = endianness + basic_type
 
     return unpack(full_type, stream.read(calcsize(full_type)))[0]
+
+
+def _write_basic(stream, endianness, basic_type, value):
+    """Write a value of basic type to a stream.
+
+    :arg stream stream: Stream object.
+    :arg bytes endianness: Endianness.
+    :arg bytes basic_type: Type of {value}.
+    :arg any value: Value to write.
+    """
+    if basic_type == b's':
+        stream.write(value + _end_of_string)
+        return
+
+    full_type = endianness + basic_type
+
+    stream.write(pack(full_type, cast(basic_type)(value)))
+
+
+def cast(c_type):
+    """Select the appropriate casting function given a C type.
+
+    :arg bytes c_type: C type.
+
+    :returns obj: Casting function.
+    """
+    if c_type == b'?':
+        return bool
+    if c_type in [b'c', b's']:
+        return bytes
+    if c_type in [b'f', b'd']:
+        return float
+    return int
 
 
 def read(stream, endianness, size_t, obj_type):
@@ -77,21 +94,8 @@ def read(stream, endianness, size_t, obj_type):
     return _read_basic(stream, endianness, obj_type)
 
 
-def _write_basic(stream, endianness, basic_type, value):
-    """Write a value of basic type to a stream.
-
-    :arg stream stream: Stream object.
-    :arg bytes endianness: Endianness.
-    :arg bytes basic_type: Type of {value}.
-    :arg any value: Value to write.
-    """
-    if basic_type == b's':
-        stream.write(value + end_of_string)
-        return
-
-    full_type = endianness + basic_type
-
-    stream.write(pack(full_type, cast(basic_type)(value)))
+def read_byte_string(stream):
+    return _read_bytes_until(stream, _end_of_string)
 
 
 def write(stream, endianness, size_t, obj_type, obj):
