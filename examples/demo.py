@@ -12,7 +12,7 @@ stdout.flush()
 interface = Interface(device)
 stdout.write('done.\n\n')
 
-stdout.write('Protocol version: {}\n\n'.format(interface.version()))
+stdout.write('Protocol version: {}\n\n'.format(interface._version))
 
 i = 0
 while i < 10:
