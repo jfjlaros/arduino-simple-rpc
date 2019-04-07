@@ -6,19 +6,19 @@ purposes. It currently has two subcommands: ``list``, which shows a list of
 available methods and ``call`` for calling methods. For more information, use
 the ``-h`` option.
 
-.. code::
+::
 
     simple_rpc -h
 
 
-Example
--------
+Basic usage
+-----------
 
 If the Arduino has exposed the functions ``inc`` and ``set_led`` like in the
 example_ given in the device library documentation, the ``list`` subcommand
 will show the following.
 
-.. code::
+::
 
     $ simple_rpc list
     Available methods:
@@ -40,10 +40,25 @@ will show the following.
 
 Any of these methods can be called by using the ``call`` subcommand.
 
-.. code::
+::
 
     $ simple_rpc call inc 1
     2
+
+
+Complex objects
+---------------
+
+Complex objects are passed on the command line interface as a JSON string.
+Binary encoding and decoding is taken care of by the CLI.
+
+::
+
+    $ simple_rpc call vector '[1, 2, 3, 4]'
+    [1.40, 2.40, 3.40, 4.40]
+
+    $ simple_rpc call object '["a", [10, "b"]]'
+    ["b", [11, "c"]]
 
 
 .. _example: https://simplerpc.readthedocs.io/en/latest/usage_device.html#example

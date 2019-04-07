@@ -74,7 +74,7 @@ Additionally, the ``with`` statement is supported for easy opening and closing.
 .. code:: python
 
     >>> with Interface('/dev/ttyACM0') as interface:
-    >>>     interface.version()
+    >>>     interface.ping(10)
 
 The class instance has a public member variable named ``methods`` which
 contains the definitions of the exported methods.
@@ -87,7 +87,7 @@ contains the definitions of the exported methods.
     {
       'return': {
         'doc': 'a + 1.',
-        'fmt': '<h',
+        'fmt': b'h',
         'typename': 'int'},
       'doc': 'Increment a value.',
       'name': 'inc',
@@ -96,15 +96,15 @@ contains the definitions of the exported methods.
         {
           'doc': 'Value.',
           'name': 'a',
-          'fmt': '<h',
+          'fmt': b'h',
           'typename': 'int'
         }
       ]
     }
 
 
-Example
--------
+Basic usage
+-----------
 
 In the example_ given in the device library documentation, the ``inc`` method
 is exported, which is now present as a class method of the ``Interface`` class
@@ -137,6 +137,38 @@ function can be used.
         :arg int a: Value.
 
         :returns int: a + 1.
+
+Note that strings should be encoded as ``bytes`` objects. If, for example, we
+have a function named ``test`` that takes a string as parameter, we should call
+this function as follows.
+
+.. code:: python
+
+    >>> interface.test(b'hello world')
+
+
+Complex objects
+---------------
+
+Some methods may have complex objects like Tuples, Objects or Vectors as
+parameters or return type.
+
+In the following example, we call a method that takes a Vector of integers and
+returns a Vector of floats.
+
+.. code:: python
+
+    >>> interface.vector([1, 2, 3, 4])
+    [1.40, 2.40, 3.40, 4.40]
+
+In this example, we call a method that takes an Object containing a byte and an
+other Object. A similar Object is returned.
+
+.. code:: python
+
+    >>> interface.object((b'a', (10, b'b')))
+    (b'b', (11, b'c'))
+
 
 
 .. _example: https://simplerpc.readthedocs.io/en/latest/usage_device.html#example
