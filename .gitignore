@@ -1,6 +1,7 @@
 *.swp
 .cache/
 arduino_simple_rpc.egg-info/
+build/
 dist/
 simple_rpc/*.pyc
 simple_rpc/__pycache__/

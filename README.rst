@@ -84,9 +84,11 @@ Further reading
 ---------------
 
 For more information about the host library and other interfaces, please see
-the :doc:`usage` and :doc:`library` sections.
+the Usage_ and Library_ sections.
 
 
 .. _Arduino: https://www.arduino.cc
 .. _simpleRPC: https://simpleRPC.readthedocs.io
 .. _ReadTheDocs: https://arduino-simple-rpc.readthedocs.io
+.. _Usage: https://arduino-simple-rpc.readthedocs.io/en/latest/usage.html
+.. _Library: https://arduino-simple-rpc.readthedocs.io/en/latest/library.html
