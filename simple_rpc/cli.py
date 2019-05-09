@@ -1,5 +1,6 @@
 from argparse import ArgumentParser, FileType, RawDescriptionHelpFormatter
 from json import dumps, loads
+from json.decoder import JSONDecodeError
 from sys import stdout
 from time import sleep
 
@@ -67,6 +68,13 @@ def _describe_method(method):
     return description
 
 
+def _loads(string):
+    try:
+        return loads(string)
+    except JSONDecodeError:
+        return string
+
+
 def rpc_list(handle, device, baudrate, wait):
     """List the device methods.
 
@@ -90,7 +98,7 @@ def rpc_call(handle, device, baudrate, wait, name, args):
     :arg str name: Method name.
     :arg list args: Method parameters.
     """
-    args_ = list(map(lambda x: _json_utf8_encode(loads(x)), args))
+    args_ = list(map(lambda x: _json_utf8_encode(_loads(x)), args))
 
     with Interface(device, baudrate, wait) as interface:
         result = interface.call_method(name, *args_)
