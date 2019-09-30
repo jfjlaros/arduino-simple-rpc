@@ -50,7 +50,8 @@ Complex objects
 ---------------
 
 Complex objects are passed on the command line interface as a JSON string.
-Binary encoding and decoding is taken care of by the CLI.
+Binary encoding and decoding is taken care of by the CLI. The following example
+makes use of the demo_ sketch in the device examples.
 
 ::
 
@@ -61,4 +62,5 @@ Binary encoding and decoding is taken care of by the CLI.
     ["b", [11, "c"]]
 
 
-.. _example: https://simplerpc.readthedocs.io/en/latest/usage_device.html#example
+.. _example: https://simplerpc.readthedocs.io/en/latest/usage.html#example
+.. _demo: https://github.com/jfjlaros/simpleRPC/blob/master/examples/demo/demo.ino
