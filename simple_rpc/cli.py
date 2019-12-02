@@ -5,35 +5,8 @@ from sys import stdout
 from time import sleep
 
 from . import doc_split, usage, version
+from .extras import json_utf8_decode, json_utf8_encode
 from .simple_rpc import Interface
-
-
-def _json_utf8_encode(obj):
-    """Binary encode all strings in an object.
-
-    :arg object obj: Object.
-
-    :returns object: Object with binary encoded strings.
-    """
-    if isinstance(obj, str):
-        return obj.encode('utf-8')
-    if isinstance(obj, list) or isinstance(obj, tuple):
-        return [_json_utf8_encode(item) for item in obj]
-    return obj
-
-
-def _json_utf8_decode(obj):
-    """Decode all strings in an object to UTF-8.
-
-    :arg object obj: Object.
-
-    :returns object: Object with UTF-8 encoded strings.
-    """
-    if isinstance(obj, bytes):
-        return obj.decode('utf-8')
-    if isinstance(obj, list) or isinstance(obj, tuple):
-        return [_json_utf8_decode(item) for item in obj]
-    return obj
 
 
 def _describe_method(method):
@@ -98,13 +71,13 @@ def rpc_call(handle, device, baudrate, wait, name, args):
     :arg str name: Method name.
     :arg list args: Method parameters.
     """
-    args_ = list(map(lambda x: _json_utf8_encode(_loads(x)), args))
+    args_ = list(map(lambda x: json_utf8_encode(_loads(x)), args))
 
     with Interface(device, baudrate, wait) as interface:
         result = interface.call_method(name, *args_)
 
         if result != None:
-            handle.write('{}\n'.format(dumps(_json_utf8_decode(result))))
+            handle.write('{}\n'.format(dumps(json_utf8_decode(result))))
 
 
 def main():

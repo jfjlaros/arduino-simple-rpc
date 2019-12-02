@@ -3,8 +3,8 @@ from os.path import exists
 
 from pytest import mark
 
-from simple_rpc.cli import (
-    _describe_method, _json_utf8_decode, _json_utf8_encode, rpc_call, rpc_list)
+from simple_rpc.cli import _describe_method, rpc_call, rpc_list
+from simple_rpc.extras import json_utf8_decode, json_utf8_encode
 
 
 _device = '/dev/ttyACM0'
@@ -12,13 +12,13 @@ _reason = 'device not connected'
 
 
 def test_json_utf8_encode():
-    assert _json_utf8_encode(['a', ['b', 10]]) == [b'a', [b'b', 10]]
-    assert _json_utf8_encode(('a', ('b', 10))) == [b'a', [b'b', 10]]
+    assert json_utf8_encode(['a', ['b', 10]]) == [b'a', [b'b', 10]]
+    assert json_utf8_encode(('a', ('b', 10))) == [b'a', [b'b', 10]]
 
 
 def test_json_utf8_decode():
-    assert _json_utf8_decode([b'a', [b'b', 10]]) == ['a', ['b', 10]]
-    assert _json_utf8_decode((b'a', (b'b', 10))) == ['a', ['b', 10]]
+    assert json_utf8_decode([b'a', [b'b', 10]]) == ['a', ['b', 10]]
+    assert json_utf8_decode((b'a', (b'b', 10))) == ['a', ['b', 10]]
 
 
 def test_describe_method():
