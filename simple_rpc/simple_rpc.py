@@ -19,8 +19,7 @@ class Interface(object):
     def __init__(self, device, baudrate=9600, wait=1, autoconnect=True):
         """Initialise the class.
 
-        :arg str device: Serial device name (e.g. /dev/ttyACM0) or ethernet
-             device name (e.g. socket://192.168.1.151:10000)
+        :arg str device: Serial device name.
         :arg int baudrate: Baud rate.
         :arg int wait: Time in seconds before communication starts.
         :arg bool autoconnect: Automatically connect.

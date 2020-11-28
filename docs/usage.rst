@@ -70,4 +70,4 @@ Ethernet connections
 
 To connect to ethernet or WiFi devices:
 
-    $ simple_rpc list -d socket://192.168.1.151:10000
+    $ simple_rpc list -d socket://192.168.1.50:10000
