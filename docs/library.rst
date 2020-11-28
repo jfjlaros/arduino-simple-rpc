@@ -7,8 +7,9 @@ passing the path to a serial device to the constructor.
 .. code:: python
 
     >>> from simple_rpc import Interface
-    >>> 
+    >>>
     >>> interface = Interface('/dev/ttyACM0')
+    >>> ehternet_interface = Interface('socket://192.168.1.151:10000')
 
 Every exported method will show up as a class method of the ``interface`` class
 instance. These methods can be used like any normal class methods.
