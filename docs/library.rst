@@ -2,14 +2,23 @@ Library
 =======
 
 The API library provides the ``Interface`` class. A class instance is made by
-passing the path to a serial device to the constructor.
+passing the path to a device to the constructor.
 
 .. code:: python
 
     >>> from simple_rpc import Interface
-    >>>
+
+If the device is a serial device, the path may look like this.
+
+.. code:: python
+
     >>> interface = Interface('/dev/ttyACM0')
-    >>> ethernet_interface = Interface('socket://192.168.1.50:10000')
+
+If the device is an ethernet device, the path may look like this.
+
+.. code:: python
+
+    >>> interface = Interface('socket://192.168.1.50:10000')
 
 Every exported method will show up as a class method of the ``interface`` class
 instance. These methods can be used like any normal class methods.
@@ -26,7 +35,7 @@ The constructor takes the following parameters.
      - description
    * - ``device``
      - no
-     - Serial device name.
+     - Device name.
    * - ``baudrate``
      - yes
      - Baud rate.
@@ -45,11 +54,11 @@ The following standard methods are available.
    * - name
      - description
    * - ``open()``
-     - Connect to serial device.
+     - Connect to device.
    * - ``close()``
-     - Disconnect from serial device.
+     - Disconnect from device.
    * - ``is_open()``
-     - Query serial device state.
+     - Query device state.
    * - ``call_method()``
      - Execute a method.
 

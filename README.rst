@@ -36,6 +36,7 @@ library.
 - Function and parameter names are defined on the Arduino.
 - API documentation is defined on the Arduino.
 - Support for disconnecting and reconnecting.
+- Support for serial and ethernet devices.
 
 Please see ReadTheDocs_ for the latest documentation.
 

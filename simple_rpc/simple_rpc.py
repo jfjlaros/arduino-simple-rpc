@@ -19,7 +19,7 @@ class Interface(object):
     def __init__(self, device, baudrate=9600, wait=1, autoconnect=True):
         """Initialise the class.
 
-        :arg str device: Serial device name.
+        :arg str device: Device name.
         :arg int baudrate: Baud rate.
         :arg int wait: Time in seconds before communication starts.
         :arg bool autoconnect: Automatically connect.
@@ -105,7 +105,7 @@ class Interface(object):
         return methods
 
     def open(self):
-        """Connect to serial device."""
+        """Connect to device."""
         if self.is_open():
             return
 
@@ -122,7 +122,7 @@ class Interface(object):
                 self, method['name'], MethodType(make_function(method), self))
 
     def close(self):
-        """Disconnect from serial device."""
+        """Disconnect from device."""
         if not self.is_open():
             return
 
@@ -135,7 +135,7 @@ class Interface(object):
             self._connection.close()
 
     def is_open(self):
-        """Query serial device state."""
+        """Query device state."""
         return self._connection.isOpen()
 
 

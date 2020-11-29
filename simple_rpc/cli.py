@@ -52,7 +52,7 @@ def rpc_list(handle, device, baudrate, wait):
     """List the device methods.
 
     :arg stream handle: Output handle.
-    :arg str device: Serial device.
+    :arg str device: Device.
     :arg int baudrate: Baud rate.
     :arg int wait: Time in seconds before communication starts.
     """
@@ -65,7 +65,7 @@ def rpc_call(handle, device, baudrate, wait, name, args):
     """Execute a method.
 
     :arg stream handle: Output handle.
-    :arg str device: Serial device.
+    :arg str device: Device.
     :arg int baudrate: Baud rate.
     :arg int wait: Time in seconds before communication starts.
     :arg str name: Method name.
@@ -85,7 +85,7 @@ def main():
     common_parser = ArgumentParser(add_help=False)
     common_parser.add_argument(
         '-d', dest='device', type=str, default='/dev/ttyACM0',
-        help='serial device (%(type)s default="%(default)s")')
+        help='device (%(type)s default="%(default)s")')
     common_parser.add_argument(
         '-b', dest='baudrate', type=int, default=9600,
         help='baud rate (%(type)s default=%(default)s)')
