@@ -1,7 +1,7 @@
 from time import sleep
 from types import MethodType
 
-from serial import Serial
+from serial import serial_for_url
 from serial.serialutil import SerialException
 
 from .extras import make_function
@@ -27,12 +27,14 @@ class Interface(object):
         self._device = device
         self._wait = wait
 
-        self._connection = Serial(baudrate=baudrate)
+        self._connection = serial_for_url(device)
+        self._connection.baudrate = baudrate
         self._version = (0, 0, 0)
         self._endianness = b'<'
         self._size_t = b'H'
         self.methods = {}
 
+        self.close()
         if autoconnect:
             self.open()
 

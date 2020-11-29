@@ -64,3 +64,10 @@ makes use of the demo_ sketch in the device examples.
 
 .. _example: https://simplerpc.readthedocs.io/en/latest/usage.html#example
 .. _demo: https://github.com/jfjlaros/simpleRPC/blob/master/examples/demo/demo.ino
+
+Ethernet connections
+---------------
+
+To connect to ethernet or WiFi devices:
+
+    $ simple_rpc list -d socket://192.168.1.50:10000
