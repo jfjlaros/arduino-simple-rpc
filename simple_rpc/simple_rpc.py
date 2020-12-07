@@ -1,4 +1,3 @@
-from time import sleep
 from types import MethodType
 
 from serial import serial_for_url
@@ -21,20 +20,18 @@ class Interface(object):
 
         :arg str device: Device name.
         :arg int baudrate: Baud rate.
-        :arg int wait: Time in seconds before communication starts.
+        :arg int wait: Time in seconds before communication starts (depricated).
         :arg bool autoconnect: Automatically connect.
         """
         self._device = device
+        self._baudrate = baudrate
         self._wait = wait
 
-        self._connection = serial_for_url(device)
-        self._connection.baudrate = baudrate
         self._version = (0, 0, 0)
         self._endianness = b'<'
         self._size_t = b'H'
         self.methods = {}
 
-        self.close()
         if autoconnect:
             self.open()
 
@@ -44,63 +41,67 @@ class Interface(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-    def _select(self, index):
+    def _select(self, connection, index):
         """Initiate a remote procedure call, select the method.
 
         :arg int index: Method index.
         """
-        self._write(b'B', index)
+        self._write(connection, b'B', index)
 
-    def _write(self, obj_type, obj):
+    def _write(self, connection, obj_type, obj):
         """Provide parameters for a remote procedure call.
 
         :arg bytes obj_type: Type of the parameter.
         :arg any obj: Value of the parameter.
         """
-        write(
-            self._connection, self._endianness, self._size_t, obj_type, obj)
+        write(connection, self._endianness, self._size_t, obj_type, obj)
 
-    def _read_byte_string(self):
-        return read_byte_string(self._connection)
+    def _read_byte_string(self, connection):
+        return read_byte_string(connection)
 
-    def _read(self, obj_type):
+    def _read(self, connection, obj_type):
         """Read a return value from a remote procedure call.
 
         :arg str obj_type: Return type.
 
         :returns any: Return value.
         """
-        return read(
-            self._connection, self._endianness, self._size_t, obj_type)
+        return read(connection, self._endianness, self._size_t, obj_type)
 
     def _get_methods(self):
         """Get remote procedure call methods.
 
         :returns dict: Method objects indexed by name.
         """
-        self._select(_list_req)
-
-        if self._read_byte_string() != _protocol:
-            raise ValueError('missing protocol header')
-
-        self._version = tuple(self._read(b'B') for _ in range(3))
-        if self._version[0] != _version[0] or self._version[1] > _version[1]:
-            raise ValueError(
-                'version mismatch (device: {}, client: {})'.format(
-                    '.'.join(map(str, self._version)),
-                    '.'.join(map(str, _version))))
-
-        self._endianness, self._size_t = (
-            bytes([c]) for c in self._read_byte_string())
-
         methods = {}
-        index = 0
-        line = self._read_byte_string()
-        while line:
-            method = parse_line(index, line)
-            methods[method['name']] = method
-            line = self._read_byte_string()
-            index += 1
+
+        try:
+            with serial_for_url(self._device, baudrate=self._baudrate) as connection:
+                self._select(connection, _list_req)
+
+                if self._read_byte_string(connection) != _protocol:
+                    raise ValueError('missing protocol header')
+
+                self._version = tuple(self._read(connection, b'B') for _ in range(3))
+                if self._version[0] != _version[0] or self._version[1] > _version[1]:
+                    raise ValueError(
+                        'version mismatch (device: {}, client: {})'.format(
+                            '.'.join(map(str, self._version)),
+                            '.'.join(map(str, _version))))
+
+                self._endianness, self._size_t = (
+                    bytes([c]) for c in self._read_byte_string(connection))
+
+                index = 0
+                line = self._read_byte_string(connection)
+                while line:
+                    method = parse_line(index, line)
+                    methods[method['name']] = method
+                    line = self._read_byte_string(connection)
+                    index += 1
+
+        except SerialException:
+            pass
 
         return methods
 
@@ -108,13 +109,6 @@ class Interface(object):
         """Connect to device."""
         if self.is_open():
             return
-
-        self._connection.port = self._device
-        try:
-            self._connection.open()
-        except SerialException as error:
-            raise IOError(error.strerror.split(':')[0])
-        sleep(self._wait)
 
         self.methods = self._get_methods()
         for method in self.methods.values():
@@ -131,13 +125,9 @@ class Interface(object):
 
         self.methods = {}
 
-        if (self._connection):
-            self._connection.close()
-
     def is_open(self):
         """Query device state."""
-        return self._connection.isOpen()
-
+        return len(self.methods) > 0
 
     def call_method(self, name, *args):
         """Execute a method.
@@ -157,15 +147,22 @@ class Interface(object):
                 '{} expected {} arguments, got {}'.format(
                     name, len(parameters), len(args)))
 
-        # Call the method.
-        self._select(method['index'])
+        result = None
+        try:
+            with serial_for_url(self._device, baudrate=self._baudrate) as connection:
 
-        # Provide parameters (if any).
-        if method['parameters']:
-            for index, parameter in enumerate(method['parameters']):
-                self._write(parameter['fmt'], args[index])
+                # Call the method.
+                self._select(connection, method['index'])
 
-        # Read return value (if any).
-        if method['return']['fmt']:
-            return self._read(method['return']['fmt'])
-        return None
+                # Provide parameters (if any).
+                if method['parameters']:
+                    for index, parameter in enumerate(method['parameters']):
+                        self._write(connection, parameter['fmt'], args[index])
+
+                # Read return value (if any).
+                if method['return']['fmt']:
+                    result = self._read(connection, method['return']['fmt'])
+        except SerialException:
+            pass
+
+        return result
