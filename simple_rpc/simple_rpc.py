@@ -15,25 +15,25 @@ _list_req = 0xff
 
 
 class Interface(object):
-    def __init__(self, device, baudrate=9600, wait=1, autoconnect=True):
+    def __init__(self, device, baudrate=9600):
         """Initialise the class.
 
         :arg str device: Device name.
         :arg int baudrate: Baud rate.
-        :arg int wait: Time in seconds before communication starts (depricated).
+        :arg int wait: Time in seconds before communication starts.
         :arg bool autoconnect: Automatically connect.
         """
         self._device = device
         self._baudrate = baudrate
-        self._wait = wait
 
         self._version = (0, 0, 0)
         self._endianness = b'<'
         self._size_t = b'H'
-        self.methods = {}
 
-        if autoconnect:
-            self.open()
+        self.methods = self._get_methods()
+        for method in self.methods.values():
+            setattr(
+                self, method['name'], MethodType(make_function(method), self))
 
     def __enter__(self):
         return self
@@ -104,30 +104,6 @@ class Interface(object):
             pass
 
         return methods
-
-    def open(self):
-        """Connect to device."""
-        if self.is_open():
-            return
-
-        self.methods = self._get_methods()
-        for method in self.methods.values():
-            setattr(
-                self, method['name'], MethodType(make_function(method), self))
-
-    def close(self):
-        """Disconnect from device."""
-        if not self.is_open():
-            return
-
-        for method in self.methods:
-            delattr(self, method)
-
-        self.methods = {}
-
-    def is_open(self):
-        """Query device state."""
-        return len(self.methods) > 0
 
     def call_method(self, name, *args):
         """Execute a method.
