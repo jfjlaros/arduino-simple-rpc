@@ -16,16 +16,19 @@ _list_req = 0xff
 
 
 class Interface(object):
-    def __init__(self, device, baudrate=9600, wait=1, autoconnect=True):
+    def __init__(self, device, baudrate=9600, wait=1, autoconnect=True,
+                 reuse_methods=False):
         """Initialise the class.
 
         :arg str device: Device name.
         :arg int baudrate: Baud rate.
         :arg int wait: Time in seconds before communication starts.
         :arg bool autoconnect: Automatically connect.
+        :arg bool reuse_methods: Re-use method definitions from first attempt.
         """
         self._device = device
         self._wait = wait
+        self._reuse_methods = reuse_methods
 
         self._connection = serial_for_url(device)
         self._connection.baudrate = baudrate
@@ -116,20 +119,21 @@ class Interface(object):
             raise IOError(error.strerror.split(':')[0])
         sleep(self._wait)
 
-        self.methods = self._get_methods()
-        for method in self.methods.values():
-            setattr(
-                self, method['name'], MethodType(make_function(method), self))
+        if not self._reuse_methods or len(self._methods) == 0:
+            self.methods = self._get_methods()
+            for method in self.methods.values():
+                method_function = MethodType(make_function(method), self)
+                setattr(self, method['name'], method_function)
 
     def close(self):
         """Disconnect from device."""
         if not self.is_open():
             return
 
-        for method in self.methods:
-            delattr(self, method)
-
-        self.methods = {}
+        if not self._reuse_methods:
+            for method in self.methods:
+                delattr(self, method)
+            self.methods = {}
 
         if (self._connection):
             self._connection.close()
@@ -137,7 +141,6 @@ class Interface(object):
     def is_open(self):
         """Query device state."""
         return self._connection.isOpen()
-
 
     def call_method(self, name, *args):
         """Execute a method.
