@@ -2,6 +2,7 @@ from time import sleep
 from types import MethodType
 
 from serial import serial_for_url
+from serial import urlhandler
 from serial.serialutil import SerialException
 
 from .extras import make_function
@@ -34,8 +35,10 @@ class Interface(object):
         self._size_t = b'H'
         self.methods = {}
 
-        self.close()
-        if autoconnect:
+        self._connection.close()
+        if self._is_socket_connection():
+            self._wait = 0
+        elif autoconnect:
             self.open()
 
     def __enter__(self):
@@ -78,6 +81,12 @@ class Interface(object):
 
         :returns dict: Method objects indexed by name.
         """
+        methods = {}
+
+        # Auto open ethernet sockets
+        if self._is_socket_connection():
+            self._connection.open()
+
         self._select(_list_req)
 
         if self._read_byte_string() != _protocol:
@@ -93,7 +102,6 @@ class Interface(object):
         self._endianness, self._size_t = (
             bytes([c]) for c in self._read_byte_string())
 
-        methods = {}
         index = 0
         line = self._read_byte_string()
         while line:
@@ -102,7 +110,14 @@ class Interface(object):
             line = self._read_byte_string()
             index += 1
 
+        # Auto close ethernet sockets
+        if self._is_socket_connection():
+            self._connection.close()
+
         return methods
+
+    def _is_socket_connection(self):
+        return isinstance(self._connection, urlhandler.protocol_socket.Serial)
 
     def open(self):
         """Connect to device."""
@@ -126,18 +141,12 @@ class Interface(object):
         if not self.is_open():
             return
 
-        for method in self.methods:
-            delattr(self, method)
-
-        self.methods = {}
-
         if (self._connection):
             self._connection.close()
 
     def is_open(self):
         """Query device state."""
         return self._connection.isOpen()
-
 
     def call_method(self, name, *args):
         """Execute a method.
@@ -157,6 +166,10 @@ class Interface(object):
                 '{} expected {} arguments, got {}'.format(
                     name, len(parameters), len(args)))
 
+        # Auto open ethernet sockets
+        if self._is_socket_connection():
+            self._connection.open()
+
         # Call the method.
         self._select(method['index'])
 
@@ -166,6 +179,13 @@ class Interface(object):
                 self._write(parameter['fmt'], args[index])
 
         # Read return value (if any).
+        result = None
         if method['return']['fmt']:
-            return self._read(method['return']['fmt'])
-        return None
+            result = self._read(method['return']['fmt'])
+
+        # Auto close ethernet sockets
+        if self._is_socket_connection():
+            self._connection.close()
+
+        # Return the result
+        return result
