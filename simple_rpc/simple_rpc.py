@@ -105,15 +105,11 @@ class Interface(object):
         return methods
 
     def open(self):
-        """Connect to device."""
+        """Connect to device, wait, and fetch methods."""
         if self.is_open():
             return
 
-        self._connection.port = self._device
-        try:
-            self._connection.open()
-        except SerialException as error:
-            raise IOError(error.strerror.split(':')[0])
+        self.reopen()
         sleep(self._wait)
 
         self.methods = self._get_methods()
@@ -121,15 +117,18 @@ class Interface(object):
             setattr(
                 self, method['name'], MethodType(make_function(method), self))
 
+    def reopen(self):
+        """Connect to device."""
+        self._connection.port = self._device
+        try:
+            self._connection.open()
+        except SerialException as error:
+            raise IOError(error.strerror.split(':')[0])
+
     def close(self):
         """Disconnect from device."""
         if not self.is_open():
             return
-
-        for method in self.methods:
-            delattr(self, method)
-
-        self.methods = {}
 
         if (self._connection):
             self._connection.close()
@@ -137,7 +136,6 @@ class Interface(object):
     def is_open(self):
         """Query device state."""
         return self._connection.isOpen()
-
 
     def call_method(self, name, *args):
         """Execute a method.
