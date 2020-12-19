@@ -132,19 +132,20 @@ class Interface(object):
             self._connection.open()
         except SerialException as error:
             raise IOError(error.strerror.split(':')[0])
-        sleep(self._wait)
 
-        self.methods = self._get_methods()
-        for method in self.methods.values():
-            setattr(
-                self, method['name'], MethodType(make_function(method), self))
+        if not self._is_socket or len(self.methods) == 0:
+            sleep(self._wait)
+            self.methods = self._get_methods()
+            for method in self.methods.values():
+                setattr(
+                    self, method['name'], MethodType(make_function(method), self))
 
     def close(self):
         """Disconnect from device."""
-        for method in self.methods:
-            delattr(self, method)
-
-        self.methods = {}
+        if not self._is_socket:
+            for method in self.methods:
+                delattr(self, method)
+            self.methods = {}
 
         if (self._connection):
             self._connection.close()
