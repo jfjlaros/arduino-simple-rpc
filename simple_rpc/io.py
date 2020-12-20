@@ -12,15 +12,7 @@ def _read_bytes_until(stream, delimiter):
 
     :returns bytes: Byte string.
     """
-    data = b''
-
-    while True:
-        char = stream.read(1)
-        if char == delimiter:
-            break
-        data += char
-
-    return data
+    return b''.join(until(lambda x: x == delimiter, stream.read, 1))
 
 
 def _read_basic(stream, endianness, basic_type):
@@ -114,3 +106,18 @@ def write(stream, endianness, size_t, obj_type, obj):
             write(stream, endianness, size_t, item_type, item)
     else:
         _write_basic(stream, endianness, obj_type, obj)
+
+
+def until(condition, f, *args, **kwargs):
+    """Call {f(*args, **kwargs)} until {condition} is true.
+
+    :arg callable condition: Function that inspects the result of {f}.
+    :arg callable f: Any function.
+    :arg list *args: Porisional arguments of {f}.
+    :arg dict **kwargs: Keyword arguments of {f}.
+    """
+    while True:
+        result = f(*args, **kwargs)
+        if condition(result):
+            break
+        yield result
