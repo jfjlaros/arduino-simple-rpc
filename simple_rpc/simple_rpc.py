@@ -25,18 +25,16 @@ class Interface(object):
         :arg int wait: Time in seconds before communication starts.
         :arg bool autoconnect: Automatically connect.
         """
-        self._device = device
         self._wait = wait
 
-        self._connection = serial_for_url(device)
+        self._connection = serial_for_url(
+            device, do_not_open=True, baudrate=baudrate)
         self._is_socket = isinstance(self._connection, socket_serial)
-        self._connection.baudrate = baudrate
         self._version = (0, 0, 0)
         self._endianness = b'<'
         self._size_t = b'H'
         self.methods = {}
 
-        self.close()
         if autoconnect:
             self.open()
 
@@ -46,20 +44,34 @@ class Interface(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
+    def _open(self):
+        if self.is_open():
+            return
+        try:
+            self._connection.open()
+        except SerialException as error:
+            raise IOError(error.strerror.split(':')[0])
+
+    def _close(self):
+        if not self.is_open():
+            return
+        self._connection.close()
+
     def _auto_open(f):
         """Decorator for automatic opening and closing of ethernet sockets."""
         def _auto_open_wrapper(self, *args, **kwargs):
-            if self._is_socket:
-                self._connection.open()
+            if self._is_socket and not self.is_open():
+                self._open()
 
             result = f(self, *args, **kwargs)
 
             if self._is_socket:
-                self._connection.close()
+                self._close()
 
             return result
 
         return _auto_open_wrapper
+
 
     def _select(self, index):
         """Initiate a remote procedure call, select the method.
@@ -121,14 +133,7 @@ class Interface(object):
 
     def open(self):
         """Connect to device."""
-        if self.is_open():
-            return
-
-        self._connection.port = self._device
-        try:
-            self._connection.open()
-        except SerialException as error:
-            raise IOError(error.strerror.split(':')[0])
+        self._open()
         sleep(self._wait)
 
         self.methods = self._get_methods()
@@ -140,11 +145,9 @@ class Interface(object):
         """Disconnect from device."""
         for method in self.methods:
             delattr(self, method)
+        self.methods.clear()
 
-        self.methods = {}
-
-        if (self._connection):
-            self._connection.close()
+        self._close()
 
     def is_open(self):
         """Query device state."""
