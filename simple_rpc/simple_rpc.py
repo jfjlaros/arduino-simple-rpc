@@ -6,7 +6,7 @@ from serial.serialutil import SerialException
 from serial.urlhandler.protocol_socket import Serial as socket_serial
 
 from .extras import make_function
-from .io import read, read_byte_string, write
+from .io import read, read_byte_string, until, write
 from .protocol import parse_line
 
 
@@ -112,13 +112,10 @@ class Interface(object):
             bytes([c]) for c in self._read_byte_string())
 
         methods = {}
-        index = 0
-        line = self._read_byte_string()
-        while line:
+        for index, line in enumerate(
+                until(lambda x: x == b'', self._read_byte_string)):
             method = parse_line(index, line)
             methods[method['name']] = method
-            line = self._read_byte_string()
-            index += 1
 
         return methods
 
