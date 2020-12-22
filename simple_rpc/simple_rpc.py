@@ -45,17 +45,15 @@ class Interface(object):
         self.close()
 
     def _open(self):
-        if self._connection.isOpen():
-            return
-        try:
-            self._connection.open()
-        except SerialException as error:
-            raise IOError(error.strerror.split(':')[0])
+        if not self._connection.isOpen():
+            try:
+                self._connection.open()
+            except SerialException as error:
+                raise IOError(error.strerror.split(':')[0])
 
     def _close(self):
-        if not self._connection.isOpen():
-            return
-        self._connection.close()
+        if self._connection.isOpen():
+            self._connection.close()
 
     def _auto_open(f):
         """Decorator for automatic opening and closing of ethernet sockets."""
