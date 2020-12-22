@@ -45,7 +45,7 @@ class Interface(object):
         self.close()
 
     def _open(self):
-        if self.is_open():
+        if self._connection.isOpen():
             return
         try:
             self._connection.open()
@@ -53,14 +53,14 @@ class Interface(object):
             raise IOError(error.strerror.split(':')[0])
 
     def _close(self):
-        if not self.is_open():
+        if not self._connection.isOpen():
             return
         self._connection.close()
 
     def _auto_open(f):
         """Decorator for automatic opening and closing of ethernet sockets."""
         def _auto_open_wrapper(self, *args, **kwargs):
-            if self._is_socket and not self.is_open():
+            if self._is_socket:
                 self._open()
 
             result = f(self, *args, **kwargs)
@@ -150,7 +150,9 @@ class Interface(object):
         self._close()
 
     def is_open(self):
-        """Query device state."""
+        """Query interface state."""
+        if self._is_socket:
+            return bool(self.methods)
         return self._connection.isOpen()
 
     @_auto_open
