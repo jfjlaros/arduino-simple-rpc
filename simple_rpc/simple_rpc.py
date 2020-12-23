@@ -3,6 +3,7 @@ from types import MethodType
 
 from serial import serial_for_url
 from serial.serialutil import SerialException
+from serial.urlhandler.protocol_socket import Serial as socket_serial
 
 from .extras import make_function
 from .io import read, read_byte_string, until, write
@@ -24,17 +25,16 @@ class Interface(object):
         :arg int wait: Time in seconds before communication starts.
         :arg bool autoconnect: Automatically connect.
         """
-        self._device = device
         self._wait = wait
 
-        self._connection = serial_for_url(device)
-        self._connection.baudrate = baudrate
+        self._connection = serial_for_url(
+            device, do_not_open=True, baudrate=baudrate)
+        self._is_socket = isinstance(self._connection, socket_serial)
         self._version = (0, 0, 0)
         self._endianness = b'<'
         self._size_t = b'H'
         self.methods = {}
 
-        self.close()
         if autoconnect:
             self.open()
 
@@ -43,6 +43,33 @@ class Interface(object):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+
+    def _open(self):
+        if not self._connection.isOpen():
+            try:
+                self._connection.open()
+            except SerialException as error:
+                raise IOError(error.strerror.split(':')[0])
+
+    def _close(self):
+        if self._connection.isOpen():
+            self._connection.close()
+
+    def _auto_open(f):
+        """Decorator for automatic opening and closing of ethernet sockets."""
+        def _auto_open_wrapper(self, *args, **kwargs):
+            if self._is_socket:
+                self._open()
+
+            result = f(self, *args, **kwargs)
+
+            if self._is_socket:
+                self._close()
+
+            return result
+
+        return _auto_open_wrapper
+
 
     def _select(self, index):
         """Initiate a remote procedure call, select the method.
@@ -73,6 +100,7 @@ class Interface(object):
         return read(
             self._connection, self._endianness, self._size_t, obj_type)
 
+    @_auto_open
     def _get_methods(self):
         """Get remote procedure call methods.
 
@@ -103,14 +131,7 @@ class Interface(object):
 
     def open(self):
         """Connect to device."""
-        if self.is_open():
-            return
-
-        self._connection.port = self._device
-        try:
-            self._connection.open()
-        except SerialException as error:
-            raise IOError(error.strerror.split(':')[0])
+        self._open()
         sleep(self._wait)
 
         self.methods = self._get_methods()
@@ -120,22 +141,19 @@ class Interface(object):
 
     def close(self):
         """Disconnect from device."""
-        if not self.is_open():
-            return
-
         for method in self.methods:
             delattr(self, method)
+        self.methods.clear()
 
-        self.methods = {}
-
-        if (self._connection):
-            self._connection.close()
+        self._close()
 
     def is_open(self):
-        """Query device state."""
+        """Query interface state."""
+        if self._is_socket:
+            return bool(self.methods)
         return self._connection.isOpen()
 
-
+    @_auto_open
     def call_method(self, name, *args):
         """Execute a method.
 
