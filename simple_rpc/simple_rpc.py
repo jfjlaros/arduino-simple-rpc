@@ -175,13 +175,16 @@ class SerialInterface(Interface):
 
 
 class SocketInterface(Interface):
-    def __init__(self, device, baudrate=9600):
+    def __init__(self, device, baudrate=9600, autoconnect=True):
         """
         :arg str device: Device name.
         :arg int baudrate: Baud rate.
+        :arg bool autoconnect: Automatically connect.
         """
         super().__init__(device, baudrate)
-        self.open()
+
+        if autoconnect:
+            self.open()
 
     def _auto_open(f):
         """Decorator for automatic opening and closing of ethernet sockets."""
