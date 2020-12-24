@@ -2,7 +2,7 @@ from os.path import dirname, abspath
 
 from configparser import ConfigParser
 
-from .simple_rpc import Interface
+from .simple_rpc import Interface, SerialInterface, SocketInterface
 from .extras import dict_to_object, object_to_dict
 
 

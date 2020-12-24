@@ -175,12 +175,16 @@ class SerialInterface(Interface):
 
 
 class SocketInterface(Interface):
-    def __init__(self, device, baudrate=9600):
+    def __init__(self, device, baudrate=9600, autoconnect=True):
         """
         :arg str device: Device name.
         :arg int baudrate: Baud rate.
         """
         super().__init__(device, baudrate)
+
+        if autoconnect:
+            self.open()
+            self._close()
 
     def _auto_open(f):
         """Decorator for automatic opening and closing of ethernet sockets."""
@@ -199,11 +203,11 @@ class SocketInterface(Interface):
 
         :returns dict: Method objects indexed by name.
         """
-        super()._get_methods()
+        return super()._get_methods()
 
     def is_open(self):
         """Query interface state."""
-        return bool(self.methods)
+        return len(self.methods) > 0
 
     @_auto_open
     def call_method(self, name, *args):
@@ -214,4 +218,4 @@ class SocketInterface(Interface):
 
         :returns any: Return value of the method.
         """
-        super().call_method(name, *args)
+        return super().call_method(name, *args)
