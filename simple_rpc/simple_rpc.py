@@ -182,6 +182,7 @@ class SocketInterface(Interface):
         """
         super().__init__(device, baudrate)
         self.open()
+        self._close()
 
     def _auto_open(f):
         """Decorator for automatic opening and closing of ethernet sockets."""
@@ -205,11 +206,6 @@ class SocketInterface(Interface):
     def is_open(self):
         """Query interface state."""
         return len(self.methods) > 0
-
-    @_auto_open
-    def open(self):
-        """Connect to device."""
-        super().open()
 
     @_auto_open
     def call_method(self, name, *args):
