@@ -181,7 +181,6 @@ class SocketInterface(Interface):
         :arg int baudrate: Baud rate.
         """
         super().__init__(device, baudrate)
-
         self._get_methods()
 
     def _auto_open(f):
