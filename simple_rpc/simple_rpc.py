@@ -197,14 +197,6 @@ class SocketInterface(Interface):
 
         return _auto_open_wrapper
 
-    @_auto_open
-    def _get_methods(self):
-        """Get remote procedure call methods.
-
-        :returns dict: Method objects indexed by name.
-        """
-        return super()._get_methods()
-
     def is_open(self):
         """Query interface state."""
         return len(self.methods) > 0
