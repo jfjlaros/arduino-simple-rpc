@@ -16,7 +16,8 @@ _version = (3, 0, 0)
 _list_req = 0xff
 
 
-class Interface(object):
+class _Interface(object):
+    """Generic simpleRPC interface."""
     def __init__(self, device, baudrate=9600):
         """
         :arg str device: Device name.
@@ -144,7 +145,8 @@ class Interface(object):
         return None
 
 
-class SerialInterface(Interface):
+class SerialInterface(_Interface):
+    """Serial simpleRPC interface."""
     def __init__(self, device, baudrate=9600, wait=2, autoconnect=True):
         """
         :arg str device: Device name.
@@ -174,7 +176,8 @@ class SerialInterface(Interface):
         self._close()
 
 
-class SocketInterface(Interface):
+class SocketInterface(_Interface):
+    """Socket simpleRPC interface."""
     def __init__(self, device, baudrate=9600, autoconnect=True):
         """
         :arg str device: Device name.
@@ -216,3 +219,18 @@ class SocketInterface(Interface):
         :returns any: Return value of the method.
         """
         return super().call_method(name, *args)
+
+
+class Interface(object):
+    """Generic simpleRPC interface wrapper."""
+    def __new__(cls, device, *args, **kwargs):
+        """
+        :arg str device: Device name.
+        :arg list *args: Interface positional arguments.
+        :arg list **kwargs: Interface keyword arguments.
+
+        :returns object: simpleRPC interface.
+        """
+        if ':' in device:
+            return SocketInterface(device, *args, **kwargs)
+        return SerialInterface(device, *args, **kwargs)
