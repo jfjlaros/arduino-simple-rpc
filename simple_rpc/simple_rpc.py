@@ -16,27 +16,19 @@ _version = (3, 0, 0)
 _list_req = 0xff
 
 
-class Interface(object):
-    def __init__(self, device, baudrate=9600, wait=1, autoconnect=True):
-        """Initialise the class.
-
+class _Interface(object):
+    """Generic simpleRPC interface."""
+    def __init__(self, device, baudrate=9600):
+        """
         :arg str device: Device name.
         :arg int baudrate: Baud rate.
-        :arg int wait: Time in seconds before communication starts.
-        :arg bool autoconnect: Automatically connect.
         """
-        self._wait = wait
-
         self._connection = serial_for_url(
             device, do_not_open=True, baudrate=baudrate)
-        self._is_socket = isinstance(self._connection, socket_serial)
         self._version = (0, 0, 0)
         self._endianness = b'<'
         self._size_t = b'H'
         self.methods = {}
-
-        if autoconnect:
-            self.open()
 
     def __enter__(self):
         return self
@@ -45,31 +37,13 @@ class Interface(object):
         self.close()
 
     def _open(self):
-        if not self._connection.isOpen():
-            try:
-                self._connection.open()
-            except SerialException as error:
-                raise IOError(error.strerror.split(':')[0])
+        try:
+            self._connection.open()
+        except SerialException as error:
+            raise IOError(error.strerror.split(':')[0])
 
     def _close(self):
-        if self._connection.isOpen():
-            self._connection.close()
-
-    def _auto_open(f):
-        """Decorator for automatic opening and closing of ethernet sockets."""
-        def _auto_open_wrapper(self, *args, **kwargs):
-            if self._is_socket:
-                self._open()
-
-            result = f(self, *args, **kwargs)
-
-            if self._is_socket:
-                self._close()
-
-            return result
-
-        return _auto_open_wrapper
-
+        self._connection.close()
 
     def _select(self, index):
         """Initiate a remote procedure call, select the method.
@@ -84,8 +58,7 @@ class Interface(object):
         :arg bytes obj_type: Type of the parameter.
         :arg any obj: Value of the parameter.
         """
-        write(
-            self._connection, self._endianness, self._size_t, obj_type, obj)
+        write(self._connection, self._endianness, self._size_t, obj_type, obj)
 
     def _read_byte_string(self):
         return read_byte_string(self._connection)
@@ -97,10 +70,8 @@ class Interface(object):
 
         :returns any: Return value.
         """
-        return read(
-            self._connection, self._endianness, self._size_t, obj_type)
+        return read(self._connection, self._endianness, self._size_t, obj_type)
 
-    @_auto_open
     def _get_methods(self):
         """Get remote procedure call methods.
 
@@ -131,9 +102,6 @@ class Interface(object):
 
     def open(self):
         """Connect to device."""
-        self._open()
-        sleep(self._wait)
-
         self.methods = self._get_methods()
         for method in self.methods.values():
             setattr(
@@ -145,15 +113,6 @@ class Interface(object):
             delattr(self, method)
         self.methods.clear()
 
-        self._close()
-
-    def is_open(self):
-        """Query interface state."""
-        if self._is_socket:
-            return bool(self.methods)
-        return self._connection.isOpen()
-
-    @_auto_open
     def call_method(self, name, *args):
         """Execute a method.
 
@@ -184,3 +143,94 @@ class Interface(object):
         if method['return']['fmt']:
             return self._read(method['return']['fmt'])
         return None
+
+
+class SerialInterface(_Interface):
+    """Serial simpleRPC interface."""
+    def __init__(self, device, baudrate=9600, wait=2, autoconnect=True):
+        """
+        :arg str device: Device name.
+        :arg int baudrate: Baud rate.
+        :arg int wait: Time in seconds before communication starts.
+        :arg bool autoconnect: Automatically connect.
+        """
+        super().__init__(device, baudrate)
+        self._wait = wait
+
+        if autoconnect:
+            self.open()
+
+    def is_open(self):
+        """Query interface state."""
+        return self._connection.isOpen()
+
+    def open(self):
+        """Connect to device."""
+        self._open()
+        sleep(self._wait)
+        super().open()
+
+    def close(self):
+        """Disconnect from device."""
+        super().close()
+        self._close()
+
+
+class SocketInterface(_Interface):
+    """Socket simpleRPC interface."""
+    def __init__(self, device, baudrate=9600, autoconnect=True):
+        """
+        :arg str device: Device name.
+        :arg int baudrate: Baud rate.
+        :arg bool autoconnect: Automatically connect.
+        """
+        super().__init__(device, baudrate)
+
+        if autoconnect:
+            self.open()
+
+    def _auto_open(f):
+        """Decorator for automatic opening and closing of ethernet sockets."""
+        def _auto_open_wrapper(self, *args, **kwargs):
+            self._open()
+            result = f(self, *args, **kwargs)
+            self._close()
+
+            return result
+
+        return _auto_open_wrapper
+
+    def is_open(self):
+        """Query interface state."""
+        return len(self.methods) > 0
+
+    @_auto_open
+    def open(self):
+        """Connect to device."""
+        super().open()
+
+    @_auto_open
+    def call_method(self, name, *args):
+        """Execute a method.
+
+        :arg str name: Method name.
+        :arg list *args: Method parameters.
+
+        :returns any: Return value of the method.
+        """
+        return super().call_method(name, *args)
+
+
+class Interface(object):
+    """Generic simpleRPC interface wrapper."""
+    def __new__(cls, device, *args, **kwargs):
+        """
+        :arg str device: Device name.
+        :arg list *args: Interface positional arguments.
+        :arg list **kwargs: Interface keyword arguments.
+
+        :returns object: simpleRPC interface.
+        """
+        if ':' in device:
+            return SocketInterface(device, *args, **kwargs)
+        return SerialInterface(device, *args, **kwargs)
