@@ -1,29 +1,20 @@
 Library
 =======
 
-The API library provides the ``Interface`` class. A class instance is made by
-passing the path to a device to the constructor.
+The API library provides several interfaces, discussed below. All interfaces
+share the methods described in Section `Generic Methods`.
+
+
+Serial interface
+----------------
+
+A ``SerialInterface`` class instance is made by passing the path to a device to
+the constructor.
 
 .. code:: python
 
-    >>> from simple_rpc import Interface
-
-If the device is a serial device, the path may look like this.
-
-.. code:: python
-
+    >>> from simple_rpc import SerialInterface
     >>> interface = Interface('/dev/ttyACM0')
-
-If the device is an ethernet device, the path may look like this.
-
-.. code:: python
-
-    >>> interface = Interface('socket://192.168.1.50:10000')
-
-Every exported method will show up as a class method of the ``interface`` class
-instance. These methods can be used like any normal class methods.
-Alternatively, the exported methods can be called by name using the
-``call_method()`` function.
 
 The constructor takes the following parameters.
 
@@ -46,7 +37,67 @@ The constructor takes the following parameters.
      - yes
      - Automatically connect.
 
-The following standard methods are available.
+
+Socket interface
+----------------
+
+A ``SocketInterface`` class instance is made by passing a URI to the
+constructor.
+
+.. code:: python
+
+    >>> from simple_rpc import SocketInterface
+    >>> interface = Interface('socket://192.168.1.50:10000')
+
+The constructor takes the following parameters.
+
+.. list-table:: Constructor parameters.
+   :header-rows: 1
+
+   * - name
+     - optional
+     - description
+   * - ``device``
+     - no
+     - Device name.
+   * - ``baudrate``
+     - yes
+     - Baud rate.
+   * - ``autoconnect``
+     - yes
+     - Automatically connect.
+
+
+Generic interface
+-----------------
+
+The ``Interface`` class can be used when the type of device is not known
+beforehand,
+
+When a path to a serial device is given, it returns a ``SerialInterface`` class
+instance.
+
+.. code:: python
+
+    >>> from simple_rpc import Interface
+    >>> interface = Interface('/dev/ttyACM0')
+    >>> interface.__class__
+    <class 'simple_rpc.simple_rpc.SerialInterface'>
+
+When a URI is given, it returns a ``SocketInterface`` class instance.
+
+.. code:: python
+
+    >>> interface = Interface('socket://192.168.1.50:10000')
+    >>> interface.__class__
+    <class 'simple_rpc.simple_rpc.SocketInterface'>
+
+
+Generic methods
+---------------
+
+The ``SerialInterface`` and the ``SocketInterface`` provide the following
+standard methods.
 
 .. list-table:: Class methods.
    :header-rows: 1
@@ -62,12 +113,12 @@ The following standard methods are available.
    * - ``call_method()``
      - Execute a method.
 
-If the connection should not be made instantly, the ``autoconnect`` parameter
-can be used in combination with the ``open()`` function.
+The ``open()`` function is used to connect to a device, this is needed when
+``autoconnect=False`` is passed to the constructor.
 
 .. code:: python
 
-    >>> interface = Interface('/dev/ttyACM0', autoconnect=False)
+    >>> interface = SerialInterface('/dev/ttyACM0', autoconnect=False)
     >>> # Do something.
     >>> interface.open()
 
@@ -83,7 +134,7 @@ Additionally, the ``with`` statement is supported for easy opening and closing.
 
 .. code:: python
 
-    >>> with Interface('/dev/ttyACM0') as interface:
+    >>> with SerialInterface('/dev/ttyACM0') as interface:
     >>>     interface.ping(10)
 
 The class instance has a public member variable named ``methods`` which
@@ -91,17 +142,18 @@ contains the definitions of the exported methods.
 
 .. code:: python
 
-    >>> interface.methods.keys()
-    dict_keys(['inc', 'set_led'])
+    >>> list(interface.methods)
+    ['inc', 'set_led']
+
+Example of a method definition.
+
+.. code:: python
+
     >>> interface.methods['inc']
     {
-      'return': {
-        'doc': 'a + 1.',
-        'fmt': b'h',
-        'typename': 'int'},
       'doc': 'Increment a value.',
-      'name': 'inc',
       'index': 2,
+      'name': 'inc',
       'parameters': [
         {
           'doc': 'Value.',
@@ -109,16 +161,25 @@ contains the definitions of the exported methods.
           'fmt': b'h',
           'typename': 'int'
         }
-      ]
+      ],
+      'return': {
+        'doc': 'a + 1.',
+        'fmt': b'h',
+        'typename': 'int'}
     }
+
+Every exported method will show up as a class method of the ``interface`` class
+instance. These methods can be used like any normal class methods.
+Alternatively, the exported methods can be called by name using the
+``call_method()`` function.
 
 
 Basic usage
 -----------
 
 In the example_ given in the device library documentation, the ``inc`` method
-is exported, which is now present as a class method of the ``Interface`` class
-instance.
+is exported, which is now present as a class method of the ``SerialInterface``
+class instance.
 
 .. code:: python
 
@@ -141,7 +202,7 @@ function can be used.
     >>> help(interface.inc)
     Help on method inc:
 
-    inc(a) method of simple_rpc.simple_rpc.Interface instance
+    inc(a) method of simple_rpc.simple_rpc.SerialInterface instance
         Increment a value.
 
         :arg int a: Value.
