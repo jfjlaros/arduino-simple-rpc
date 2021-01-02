@@ -2,7 +2,7 @@ Library
 =======
 
 The API library provides several interfaces, discussed below. All interfaces
-share the methods described in Section `Generic Methods`.
+share the methods described in Section `Generic methods`_.
 
 
 Serial interface
