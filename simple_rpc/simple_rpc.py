@@ -1,3 +1,4 @@
+from functools import wraps
 from time import sleep
 from types import MethodType
 
@@ -18,17 +19,24 @@ _list_req = 0xff
 
 class _Interface(object):
     """Generic simpleRPC interface."""
-    def __init__(self, device, baudrate=9600):
+    def __init__(self, device, baudrate=9600, wait=2, autoconnect=True):
         """
         :arg str device: Device name.
         :arg int baudrate: Baud rate.
+        :arg int wait: Time in seconds before communication starts.
+        :arg bool autoconnect: Automatically connect.
         """
+        self._wait = wait
+
         self._connection = serial_for_url(
             device, do_not_open=True, baudrate=baudrate)
         self._version = (0, 0, 0)
         self._endianness = b'<'
         self._size_t = b'H'
         self.methods = {}
+
+        if autoconnect:
+            self.open()
 
     def __enter__(self):
         return self
@@ -100,8 +108,14 @@ class _Interface(object):
 
         return methods
 
+    def is_open(self):
+        """Query interface state."""
+        pass
+
     def open(self):
         """Connect to device."""
+        sleep(self._wait)
+
         self.methods = self._get_methods()
         for method in self.methods.values():
             setattr(
@@ -147,50 +161,26 @@ class _Interface(object):
 
 class SerialInterface(_Interface):
     """Serial simpleRPC interface."""
-    def __init__(self, device, baudrate=9600, wait=2, autoconnect=True):
-        """
-        :arg str device: Device name.
-        :arg int baudrate: Baud rate.
-        :arg int wait: Time in seconds before communication starts.
-        :arg bool autoconnect: Automatically connect.
-        """
-        super().__init__(device, baudrate)
-        self._wait = wait
-
-        if autoconnect:
-            self.open()
-
+    @wraps(_Interface.is_open)
     def is_open(self):
-        """Query interface state."""
         return self._connection.isOpen()
 
+    @wraps(_Interface.open)
     def open(self):
-        """Connect to device."""
         self._open()
-        sleep(self._wait)
         super().open()
 
+    @wraps(_Interface.open)
     def close(self):
-        """Disconnect from device."""
         super().close()
         self._close()
 
 
 class SocketInterface(_Interface):
     """Socket simpleRPC interface."""
-    def __init__(self, device, baudrate=9600, autoconnect=True):
-        """
-        :arg str device: Device name.
-        :arg int baudrate: Baud rate.
-        :arg bool autoconnect: Automatically connect.
-        """
-        super().__init__(device, baudrate)
-
-        if autoconnect:
-            self.open()
-
     def _auto_open(f):
         """Decorator for automatic opening and closing of ethernet sockets."""
+        @wraps(f)
         def _auto_open_wrapper(self, *args, **kwargs):
             self._open()
             result = f(self, *args, **kwargs)
@@ -200,25 +190,12 @@ class SocketInterface(_Interface):
 
         return _auto_open_wrapper
 
+    @wraps(_Interface.is_open)
     def is_open(self):
-        """Query interface state."""
         return len(self.methods) > 0
 
-    @_auto_open
-    def open(self):
-        """Connect to device."""
-        super().open()
-
-    @_auto_open
-    def call_method(self, name, *args):
-        """Execute a method.
-
-        :arg str name: Method name.
-        :arg list *args: Method parameters.
-
-        :returns any: Return value of the method.
-        """
-        return super().call_method(name, *args)
+    open = _auto_open(_Interface.open)
+    call_method = _auto_open(_Interface.call_method)
 
 
 class Interface(object):
