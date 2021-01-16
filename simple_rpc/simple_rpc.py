@@ -200,14 +200,8 @@ class SocketInterface(_Interface):
 
 class Interface(object):
     """Generic simpleRPC interface wrapper."""
+    @wraps(_Interface.__init__)
     def __new__(cls, device, *args, **kwargs):
-        """
-        :arg str device: Device name.
-        :arg list *args: Interface positional arguments.
-        :arg list **kwargs: Interface keyword arguments.
-
-        :returns object: simpleRPC interface.
-        """
         if device.startswith('socket'):
             return SocketInterface(device, *args, **kwargs)
         return SerialInterface(device, *args, **kwargs)
