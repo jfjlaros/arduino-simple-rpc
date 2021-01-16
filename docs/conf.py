@@ -2,7 +2,7 @@ from subprocess import call
 
 call('pip install six ..', shell=True)
 
-from ordered_map import _get_metadata
+from simple_rpc import _get_metadata
 
 
 author = _get_metadata('Author')

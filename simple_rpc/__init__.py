@@ -1,21 +1,23 @@
-from os.path import dirname, abspath
+from pkg_resources import get_distribution
 
-from configparser import ConfigParser
-
-from .simple_rpc import Interface, SerialInterface, SocketInterface
 from .extras import dict_to_object, object_to_dict
+from .simple_rpc import Interface, SerialInterface, SocketInterface
 
 
-config = ConfigParser()
-with open('{}/setup.cfg'.format(dirname(abspath(__file__)))) as handle:
-    config.read_file(handle)
+def _get_metadata(name):
+    pkg = get_distribution('arduino_simple_rpc')
 
-_copyright_notice = 'Copyright (c) {} {} <{}>'.format(
-    config.get('metadata', 'copyright'),
-    config.get('metadata', 'author'),
-    config.get('metadata', 'author_email'))
+    for line in pkg.get_metadata_lines(pkg.PKG_INFO):
+        if line.startswith('{}: '.format(name)):
+            return line.split(': ')[1]
 
-usage = [config.get('metadata', 'description'), _copyright_notice]
+    return ''
+
+
+_copyright_notice = 'Copyright (c) {} <{}>'.format(
+    _get_metadata('Author'), _get_metadata('Author-email'))
+
+usage = [_get_metadata('Summary'), _copyright_notice]
 
 
 def doc_split(func):
@@ -24,7 +26,5 @@ def doc_split(func):
 
 def version(name):
     return '{} version {}\n\n{}\nHomepage: {}'.format(
-        config.get('metadata', 'name'),
-        config.get('metadata', 'version'),
-        _copyright_notice,
-        config.get('metadata', 'url'))
+        _get_metadata('Name'), _get_metadata('Version'), _copyright_notice,
+        _get_metadata('Home-page'))
