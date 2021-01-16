@@ -170,7 +170,7 @@ class SerialInterface(_Interface):
         self._open()
         super().open()
 
-    @wraps(_Interface.open)
+    @wraps(_Interface.close)
     def close(self):
         super().close()
         self._close()
