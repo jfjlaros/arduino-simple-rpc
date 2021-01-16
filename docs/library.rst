@@ -2,18 +2,19 @@ Library
 =======
 
 The API library provides several interfaces, discussed below. All interfaces
-share the methods described in Section `Generic methods`_.
+share the methods described in Section `Methods`_.
 
 
-Serial interface
-----------------
+Generic interface
+-----------------
 
-A ``SerialInterface`` class instance is made by passing the path to a device to
-the constructor.
+The ``Interface`` class can be used when the type of device is not known
+beforehand, A class instance is made by passing either the path to a device or
+a URI to the constructor.
 
 .. code:: python
 
-    >>> from simple_rpc import SerialInterface
+    >>> from simple_rpc import Interface
     >>> interface = Interface('/dev/ttyACM0')
 
 The constructor takes the following parameters.
@@ -37,45 +38,14 @@ The constructor takes the following parameters.
      - yes
      - Automatically connect.
 
+Please see the list of handlers_ for a full description of the supported
+interface types.
 
-Socket interface
-----------------
+Serial interface
+^^^^^^^^^^^^^^^^
 
-A ``SocketInterface`` class instance is made by passing a URI to the
-constructor.
-
-.. code:: python
-
-    >>> from simple_rpc import SocketInterface
-    >>> interface = Interface('socket://192.168.1.50:10000')
-
-The constructor takes the following parameters.
-
-.. list-table:: Constructor parameters.
-   :header-rows: 1
-
-   * - name
-     - optional
-     - description
-   * - ``device``
-     - no
-     - Device name.
-   * - ``baudrate``
-     - yes
-     - Baud rate.
-   * - ``autoconnect``
-     - yes
-     - Automatically connect.
-
-
-Generic interface
------------------
-
-The ``Interface`` class can be used when the type of device is not known
-beforehand,
-
-When a path to a serial device is given, it returns a ``SerialInterface`` class
-instance.
+When a path to a serial device is given, the ``Interface`` constructor returns
+a ``SerialInterface`` class instance.
 
 .. code:: python
 
@@ -84,7 +54,18 @@ instance.
     >>> interface.__class__
     <class 'simple_rpc.simple_rpc.SerialInterface'>
 
-When a URI is given, it returns a ``SocketInterface`` class instance.
+Alternatively, the ``SerialInterface`` class can be used directly.
+
+.. code:: python
+
+    >>> from simple_rpc import SerialInterface
+    >>> interface = SerialInterface('/dev/ttyACM0')
+
+Socket interface
+^^^^^^^^^^^^^^^^
+
+When a socket URI is given, the ``Interface`` constructor returns a
+``SocketInterface`` class instance.
 
 .. code:: python
 
@@ -93,11 +74,17 @@ When a URI is given, it returns a ``SocketInterface`` class instance.
     <class 'simple_rpc.simple_rpc.SocketInterface'>
 
 
-Generic methods
----------------
+Alternatively, the ``SocketInterface`` class can be used directly.
 
-The ``SerialInterface`` and the ``SocketInterface`` provide the following
-standard methods.
+.. code:: python
+
+    >>> from simple_rpc import SocketInterface
+    >>> interface = SocketInterface('socket://192.168.1.50:10000')
+
+Methods
+^^^^^^^
+
+The ``Interface`` class provides the following methods.
 
 .. list-table:: Class methods.
    :header-rows: 1
@@ -118,7 +105,7 @@ The ``open()`` function is used to connect to a device, this is needed when
 
 .. code:: python
 
-    >>> interface = SerialInterface('/dev/ttyACM0', autoconnect=False)
+    >>> interface = Interface('/dev/ttyACM0', autoconnect=False)
     >>> # Do something.
     >>> interface.open()
 
@@ -134,7 +121,7 @@ Additionally, the ``with`` statement is supported for easy opening and closing.
 
 .. code:: python
 
-    >>> with SerialInterface('/dev/ttyACM0') as interface:
+    >>> with Interface('/dev/ttyACM0') as interface:
     >>>     interface.ping(10)
 
 The class instance has a public member variable named ``methods`` which
@@ -178,8 +165,7 @@ Basic usage
 -----------
 
 In the example_ given in the device library documentation, the ``inc`` method
-is exported, which is now present as a class method of the ``SerialInterface``
-class instance.
+is exported, which is now present as a class method of the class instance.
 
 .. code:: python
 
@@ -243,3 +229,4 @@ other Object. A similar Object is returned.
 
 
 .. _example: https://simplerpc.readthedocs.io/en/latest/usage_device.html#example
+.. _handlers: https://pyserial.readthedocs.io/en/latest/url_handlers.html

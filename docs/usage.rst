@@ -45,6 +45,23 @@ Any of these methods can be called by using the ``call`` subcommand.
     $ simple_rpc call inc 1
     2
 
+The ``-d`` option is to select a device. For serial devices, a path can be
+used.
+
+::
+
+    $ simple_rpc list -d /dev/ttyUSB0
+
+For ethernet or WiFi devices, a URI can be used.
+
+::
+
+    $ simple_rpc call -d socket://192.168.1.50:10000 inc 1
+    2
+
+Please see the list of handlers_ for a full description of the supported
+interface types.
+
 
 Complex objects
 ---------------
@@ -64,10 +81,4 @@ makes use of the demo_ sketch in the device examples.
 
 .. _example: https://simplerpc.readthedocs.io/en/latest/usage.html#example
 .. _demo: https://github.com/jfjlaros/simpleRPC/blob/master/examples/demo/demo.ino
-
-Ethernet connections
----------------
-
-To connect to ethernet or WiFi devices:
-
-    $ simple_rpc list -d socket://192.168.1.50:10000
+.. _handlers: https://pyserial.readthedocs.io/en/latest/url_handlers.html
