@@ -8,4 +8,5 @@
    install
    usage
    library
+   api
    credits
