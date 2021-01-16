@@ -208,6 +208,6 @@ class Interface(object):
 
         :returns object: simpleRPC interface.
         """
-        if ':' in device:
+        if device.startswith('socket'):
             return SocketInterface(device, *args, **kwargs)
         return SerialInterface(device, *args, **kwargs)
