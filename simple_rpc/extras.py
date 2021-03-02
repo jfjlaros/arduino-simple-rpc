@@ -5,12 +5,12 @@ def {name}(self{args}):
 '''
 
 
-def _make_docstring(method):
+def _make_docstring(method: dict) -> str:
     """Make a docstring for a function.
 
-    :arg dict method: Method object.
+    :arg method: Method object.
 
-    :returns str: Function docstring.
+    :returns: Function docstring.
     """
     help_text = ''
 
@@ -34,12 +34,12 @@ def _make_docstring(method):
     return help_text
 
 
-def make_function(method):
+def make_function(method: dict) -> callable:
     """Make a member function for a method.
 
-    :arg dict method: Method object.
+    :arg method: Method object.
 
-    :returns function: New member function.
+    :returns: New member function.
     """
     context = {}
 
@@ -54,12 +54,12 @@ def make_function(method):
     return context[method['name']]
 
 
-def json_utf8_decode(obj):
+def json_utf8_decode(obj: object) -> object:
     """Decode all strings in an object to UTF-8.
 
-    :arg object obj: Object.
+    :arg obj: Object.
 
-    :returns object: Object with UTF-8 encoded strings.
+    :returns: Object with UTF-8 encoded strings.
     """
     if isinstance(obj, bytes):
         return obj.decode('utf-8')
@@ -68,12 +68,12 @@ def json_utf8_decode(obj):
     return obj
 
 
-def json_utf8_encode(obj):
+def json_utf8_encode(obj: object) -> object:
     """Binary encode all strings in an object.
 
-    :arg object obj: Object.
+    :arg obj: Object.
 
-    :returns object: Object with binary encoded strings.
+    :returns: Object with binary encoded strings.
     """
     if isinstance(obj, str):
         return obj.encode('utf-8')
@@ -82,21 +82,21 @@ def json_utf8_encode(obj):
     return obj
 
 
-def dict_to_object(d):
+def dict_to_object(d: dict) -> object:
     """Convert a dictionary using UTF-8 to an object using binary strings.
 
-    :arg dict d: Dictionary with UTF-8 encoded strings.
+    :arg d: Dictionary with UTF-8 encoded strings.
 
-    :returns object: Object with binary encoded strings.
+    :returns: Object with binary encoded strings.
     """
     return json_utf8_encode(list(d.items()))
 
 
-def object_to_dict(obj):
+def object_to_dict(obj: object) -> dict:
     """Convert an object using binary strings to a dictionary using UTF-8.
 
-    :arg object obj: Object with binary encoded strings.
+    :arg obj: Object with binary encoded strings.
 
-    :returns dict: Dictionary with UTF-8 encoded strings.
+    :returns: Dictionary with UTF-8 encoded strings.
     """
     return dict(json_utf8_decode(obj))

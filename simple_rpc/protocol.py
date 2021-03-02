@@ -1,12 +1,14 @@
+from typing import BinaryIO
+
 from .io import cast, read_byte_string
 
 
-def _parse_type(type_str):
+def _parse_type(type_str: bytes) -> any:
     """Parse a type definition string.
 
-    :arg bytes type_str: Type definition string.
+    :arg type_str: Type definition string.
 
-    :returns any: Type object.
+    :returns: Type object.
     """
     def _construct_type(tokens):
         obj_type = []
@@ -32,12 +34,12 @@ def _parse_type(type_str):
     return obj_type[0]
 
 
-def _type_name(obj_type):
+def _type_name(obj_type: bytes) -> str:
     """Python type name of a C type.
 
-    :arg bytes c_type: C type.
+    :arg c_type: C type.
 
-    :returns str: Python type name.
+    :returns: Python type name.
     """
     if not obj_type:
         return ''
@@ -48,13 +50,13 @@ def _type_name(obj_type):
     return cast(obj_type).__name__
 
 
-def _parse_signature(index, signature):
+def _parse_signature(index: int, signature: bytes) -> dict:
     """Parse a C function signature string.
 
-    :arg int index: Function index.
-    :arg bytes signature: Function signature.
+    :arg index: Function index.
+    :arg signature: Function signature.
 
-    :returns dict: Method object.
+    :returns: Method object.
     """
     method = {
         'doc': '',
@@ -78,15 +80,15 @@ def _parse_signature(index, signature):
     return method
 
 
-def _strip_split(string, delimiter):
+def _strip_split(string: str, delimiter: str) -> list:
     return list(map(lambda x: x.strip(), string.split(delimiter)))
 
 
-def _add_doc(method, doc):
+def _add_doc(method: dict, doc: str) -> None:
     """Add documentation to a method object.
 
-    :arg dict method: Method object.
-    :arg str doc: Method documentation.
+    :arg method: Method object.
+    :arg doc: Method documentation.
     """
     parts = list(map(
         lambda x: _strip_split(x, ':'), doc.decode('utf-8').split('@')))
@@ -109,13 +111,13 @@ def _add_doc(method, doc):
             method['return']['doc'] = description
 
 
-def parse_line(index, line):
+def parse_line(index: int, line: bytes) -> dict:
     """Parse a method definition line.
 
-    :arg int index: Line number.
-    :arg bytes line: Method definition.
+    :arg index: Line number.
+    :arg line: Method definition.
 
-    :returns dict: Method object.
+    :returns: Method object.
     """
     signature, description = line.split(b';', 1)
 
@@ -125,5 +127,5 @@ def parse_line(index, line):
     return method
 
 
-def hardware_defs(stream):
-    return (bytes([char]) for char in read_byte_string())
+def hardware_defs(stream: BinaryIO) -> tuple:
+    return tuple(bytes([char]) for char in read_byte_string())

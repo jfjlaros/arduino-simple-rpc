@@ -1,28 +1,29 @@
+from typing import BinaryIO
 from struct import calcsize, pack, unpack
 
 
 _end_of_string = b'\0'
 
 
-def _read_bytes_until(stream, delimiter):
+def _read_bytes_until(stream: BinaryIO, delimiter: bytes) -> bytes:
     """Read bytes from {stream} until the first encounter of {delimiter}.
 
-    :arg stream stream: Stream object.
-    :arg bytes delimiter: Delimiter.
+    :arg stream: Stream object.
+    :arg delimiter: Delimiter.
 
-    :returns bytes: Byte string.
+    :returns: Byte string.
     """
     return b''.join(until(lambda x: x == delimiter, stream.read, 1))
 
 
-def _read_basic(stream, endianness, basic_type):
+def _read_basic(stream: BinaryIO, endianness: bytes, basic_type: bytes) -> any:
     """Read a value of basic type from a stream.
 
-    :arg stream stream: Stream object.
-    :arg bytes endianness: Endianness.
-    :arg bytes basic_type: Type of {value}.
+    :arg stream: Stream object.
+    :arg endianness: Endianness.
+    :arg basic_type: Type of {value}.
 
-    :returns any: Value of type {basic_type}.
+    :returns: Value of type {basic_type}.
     """
     if basic_type == b's':
         return _read_bytes_until(stream, _end_of_string)
@@ -32,13 +33,15 @@ def _read_basic(stream, endianness, basic_type):
     return unpack(full_type, stream.read(calcsize(full_type)))[0]
 
 
-def _write_basic(stream, endianness, basic_type, value):
+def _write_basic(
+        stream: BinaryIO, endianness: bytes, basic_type: bytes, value: any
+        ) -> None:
     """Write a value of basic type to a stream.
 
-    :arg stream stream: Stream object.
-    :arg bytes endianness: Endianness.
-    :arg bytes basic_type: Type of {value}.
-    :arg any value: Value to write.
+    :arg stream: Stream object.
+    :arg endianness: Endianness.
+    :arg basic_type: Type of {value}.
+    :arg value: Value to write.
     """
     if basic_type == b's':
         stream.write(value + _end_of_string)
@@ -49,12 +52,12 @@ def _write_basic(stream, endianness, basic_type, value):
     stream.write(pack(full_type, cast(basic_type)(value)))
 
 
-def cast(c_type):
+def cast(c_type: bytes) -> object:
     """Select the appropriate casting function given a C type.
 
-    :arg bytes c_type: C type.
+    :arg c_type: C type.
 
-    :returns obj: Casting function.
+    :returns: Casting function.
     """
     if c_type == b'?':
         return bool
@@ -65,15 +68,17 @@ def cast(c_type):
     return int
 
 
-def read(stream, endianness, size_t, obj_type):
+def read(
+        stream: BinaryIO, endianness: bytes, size_t: bytes, obj_type: any
+        ) -> any:
     """Read an object from a stream.
 
-    :arg stream stream: Stream object.
-    :arg bytes endianness: Endianness.
-    :arg bytes size_t: Type of size_t.
-    :arg any obj_type: Type object.
+    :arg stream: Stream object.
+    :arg endianness: Endianness.
+    :arg size_t: Type of size_t.
+    :arg obj_type: Type object.
 
-    :returns any: Object of type {obj_type}.
+    :returns: Object of type {obj_type}.
     """
     if isinstance(obj_type, list):
         length = _read_basic(stream, endianness, size_t)
@@ -86,18 +91,20 @@ def read(stream, endianness, size_t, obj_type):
     return _read_basic(stream, endianness, obj_type)
 
 
-def read_byte_string(stream):
+def read_byte_string(stream: BinaryIO) -> bytes:
     return _read_bytes_until(stream, _end_of_string)
 
 
-def write(stream, endianness, size_t, obj_type, obj):
+def write(
+        stream: BinaryIO, endianness: bytes, size_t: bytes, obj_type: any,
+        obj: any) -> None:
     """Write an object to a stream.
 
-    :arg stream stream: Stream object.
-    :arg bytes endianness: Endianness.
-    :arg bytes size_t: Type of size_t.
-    :arg any obj_type: Type object.
-    :arg any obj: Object of type {obj_type}.
+    :arg stream: Stream object.
+    :arg endianness: Endianness.
+    :arg size_t: Type of size_t.
+    :arg obj_type: Type object.
+    :arg obj: Object of type {obj_type}.
     """
     if isinstance(obj_type, list):
         _write_basic(stream, endianness, size_t, len(obj) // len(obj_type))
@@ -108,13 +115,14 @@ def write(stream, endianness, size_t, obj_type, obj):
         _write_basic(stream, endianness, obj_type, obj)
 
 
-def until(condition, f, *args, **kwargs):
+def until(
+        condition: callable, f: callable, *args: list, **kwargs: dict) -> None:
     """Call {f(*args, **kwargs)} until {condition} is true.
 
-    :arg callable condition: Function that inspects the result of {f}.
-    :arg callable f: Any function.
-    :arg list *args: Porisional arguments of {f}.
-    :arg dict **kwargs: Keyword arguments of {f}.
+    :arg condition: Function that inspects the result of {f}.
+    :arg f: Any function.
+    :arg *args: Porisional arguments of {f}.
+    :arg **kwargs: Keyword arguments of {f}.
     """
     while True:
         result = f(*args, **kwargs)

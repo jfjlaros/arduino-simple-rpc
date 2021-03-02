@@ -3,15 +3,15 @@ from simple_rpc.protocol import (
     parse_line)
 
 
-def test_parse_type_none():
+def test_parse_type_none() -> None:
     assert _parse_type(b'') == b''
 
 
-def test_parse_type_basic():
+def test_parse_type_basic() -> None:
     assert _parse_type(b'i') == b'i'
 
 
-def test_parse_type_tuple():
+def test_parse_type_tuple() -> None:
     try:
         _parse_type(b'ic')
     except ValueError as error:
@@ -19,73 +19,73 @@ def test_parse_type_tuple():
     else:
         assert False
 
-def test_parse_type_list_basic():
+def test_parse_type_list_basic() -> None:
     assert _parse_type(b'[i]') == [b'i']
 
 
-def test_parse_type_object_basic():
+def test_parse_type_object_basic() -> None:
     assert _parse_type(b'(i)') == (b'i', )
 
 
-def test_parse_type_list_tuple():
+def test_parse_type_list_tuple() -> None:
     assert _parse_type(b'[ic]') == [b'i', b'c']
 
 
-def test_parse_type_list_object():
+def test_parse_type_list_object() -> None:
     assert _parse_type(b'[(ic)]') == [(b'i', b'c')]
 
 
-def test_parse_type_list_list():
+def test_parse_type_list_list() -> None:
     assert _parse_type(b'[[i]]') == [[b'i']]
 
 
-def test_parse_type_object_tuple():
+def test_parse_type_object_tuple() -> None:
     assert _parse_type(b'(ic)') == (b'i', b'c')
 
 
-def test_parse_type_object_list():
+def test_parse_type_object_list() -> None:
     assert _parse_type(b'([i])') == ([b'i'], )
 
 
-def test_parse_type_object_object():
+def test_parse_type_object_object() -> None:
     assert _parse_type(b'((ic))') == ((b'i', b'c'), )
 
 
-def test_parse_type_complex():
+def test_parse_type_complex() -> None:
     assert _parse_type(b'(((cc)c)i([c]))') == (
         ((b'c', b'c'), b'c'), b'i', ([b'c'], ), )
 
 
-def test_type_name_none():
+def test_type_name_none() -> None:
     assert _type_name(None) == ''
 
 
-def test_type_name_basic():
+def test_type_name_basic() -> None:
     assert _type_name(b'c') == 'bytes'
     assert _type_name(b'i') == 'int'
     assert _type_name(b'?') == 'bool'
     assert _type_name(b'f') == 'float'
 
 
-def test_type_name_tuple_basic():
+def test_type_name_tuple_basic() -> None:
     assert _type_name([b'i', b'c']) == ['int', 'bytes']
     assert _type_name([b'?', b'f']) == ['bool', 'float']
 
 
-def test_type_name_list_basic():
+def test_type_name_list_basic() -> None:
     assert _type_name([[b'i']]) == [['int']]
 
 
-def test_type_name_object_basic():
+def test_type_name_object_basic() -> None:
     assert _type_name([(b'i')]) == [('int')]
 
 
-def test_type_name_complex():
+def test_type_name_complex() -> None:
     assert _type_name([((b'c', b'c'), b'c'), b'i', ([b'c'], )]) == [
         (('bytes', 'bytes'), 'bytes'), 'int', (['bytes'], )]
 
 
-def test_parse_signature_basic():
+def test_parse_signature_basic() -> None:
     assert _parse_signature(1, b': c f') == {
         'doc': '',
         'index': 1,
@@ -96,7 +96,7 @@ def test_parse_signature_basic():
         'return': {'doc': '', 'fmt': b'', 'typename': ''}}
 
 
-def test_parse_signature_complex():
+def test_parse_signature_complex() -> None:
     assert _parse_signature(2, b'(ff): [c] (cf)') == {
         'doc': '',
         'index': 2,
@@ -110,12 +110,12 @@ def test_parse_signature_complex():
             'typename': ('float', 'float')}}
 
 
-def test_split_strip():
+def test_split_strip() -> None:
     assert _strip_split(' p1 : Param 1. ', ':') == ['p1', 'Param 1.']
     assert _strip_split('p1:Param 1.', ':') == ['p1', 'Param 1.']
 
 
-def test_add_doc_basic():
+def test_add_doc_basic() -> None:
     method = _parse_signature(1, b'i: c f')
     _add_doc(method, b'name: Test. @p1: Char. @p2: Float. @return: Int.')
 
@@ -128,7 +128,7 @@ def test_add_doc_basic():
     assert method['return']['doc'] == 'Int.'
 
 
-def test_add_doc_missing_name():
+def test_add_doc_missing_name() -> None:
     method = _parse_signature(1, b': c f')
     _add_doc(method, b'@p1: Char. @p2: Float.')
 
@@ -137,7 +137,7 @@ def test_add_doc_missing_name():
     assert method['parameters'][0]['name'] == 'arg0'
 
 
-def test_add_doc_missing_parameter():
+def test_add_doc_missing_parameter() -> None:
     method = _parse_signature(1, b': c f')
     _add_doc(method, b'name: Test. @p1: Char')
 
@@ -146,7 +146,7 @@ def test_add_doc_missing_parameter():
     assert method['parameters'][1]['name'] == 'arg1'
 
 
-def test_parse_line():
+def test_parse_line() -> None:
     method = parse_line(
         1, b'i: c f;name: Test. @p1: Char. @p2: Float. @return: Int.')
 

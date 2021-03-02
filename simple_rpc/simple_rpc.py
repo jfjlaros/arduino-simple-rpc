@@ -19,12 +19,14 @@ _list_req = 0xff
 
 class _Interface(object):
     """Generic simpleRPC interface."""
-    def __init__(self, device, baudrate=9600, wait=2, autoconnect=True):
+    def __init__(
+            self: object, device: str, baudrate: int=9600, wait: int=2,
+            autoconnect: bool=True) -> None:
         """
-        :arg str device: Device name.
-        :arg int baudrate: Baud rate.
-        :arg int wait: Time in seconds before communication starts.
-        :arg bool autoconnect: Automatically connect.
+        :arg device: Device name.
+        :arg baudrate: Baud rate.
+        :arg wait: Time in seconds before communication starts.
+        :arg autoconnect: Automatically connect.
         """
         self._wait = wait
 
@@ -38,52 +40,53 @@ class _Interface(object):
         if autoconnect:
             self.open()
 
-    def __enter__(self):
+    def __enter__(self: object) -> object:
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(
+            self: object, exc_type: None, exc_val: None, exc_tb: None) -> None:
         self.close()
 
-    def _open(self):
+    def _open(self: object) -> None:
         try:
             self._connection.open()
         except SerialException as error:
             raise IOError(error.strerror.split(':')[0])
 
-    def _close(self):
+    def _close(self: object) -> None:
         self._connection.close()
 
-    def _select(self, index):
+    def _select(self: object, index: int) -> None:
         """Initiate a remote procedure call, select the method.
 
-        :arg int index: Method index.
+        :arg index: Method index.
         """
         self._write(b'B', index)
 
-    def _write(self, obj_type, obj):
+    def _write(self: object, obj_type: bytes, obj: any) -> None:
         """Provide parameters for a remote procedure call.
 
-        :arg bytes obj_type: Type of the parameter.
-        :arg any obj: Value of the parameter.
+        :arg obj_type: Type of the parameter.
+        :arg obj: Value of the parameter.
         """
         write(self._connection, self._endianness, self._size_t, obj_type, obj)
 
-    def _read_byte_string(self):
+    def _read_byte_string(self: object) -> bytes:
         return read_byte_string(self._connection)
 
-    def _read(self, obj_type):
+    def _read(self: object, obj_type: str) -> any:
         """Read a return value from a remote procedure call.
 
-        :arg str obj_type: Return type.
+        :arg obj_type: Return type.
 
-        :returns any: Return value.
+        :returns: Return value.
         """
         return read(self._connection, self._endianness, self._size_t, obj_type)
 
-    def _get_methods(self):
+    def _get_methods(self: object) -> dict:
         """Get remote procedure call methods.
 
-        :returns dict: Method objects indexed by name.
+        :returns: Method objects indexed by name.
         """
         self._select(_list_req)
 
@@ -108,11 +111,11 @@ class _Interface(object):
 
         return methods
 
-    def is_open(self):
+    def is_open(self: object) -> bool:
         """Query interface state."""
         pass
 
-    def open(self):
+    def open(self: object) -> None:
         """Connect to device."""
         sleep(self._wait)
 
@@ -121,19 +124,19 @@ class _Interface(object):
             setattr(
                 self, method['name'], MethodType(make_function(method), self))
 
-    def close(self):
+    def close(self: object) -> None:
         """Disconnect from device."""
         for method in self.methods:
             delattr(self, method)
         self.methods.clear()
 
-    def call_method(self, name, *args):
+    def call_method(self: object, name: str, *args: list) -> any:
         """Execute a method.
 
-        :arg str name: Method name.
-        :arg list *args: Method parameters.
+        :arg name: Method name.
+        :arg *args: Method parameters.
 
-        :returns any: Return value of the method.
+        :returns: Return value of the method.
         """
         if name not in self.methods:
             raise ValueError('invalid method name: {}'.format(name))
@@ -162,26 +165,27 @@ class _Interface(object):
 class SerialInterface(_Interface):
     """Serial simpleRPC interface."""
     @wraps(_Interface.is_open)
-    def is_open(self):
+    def is_open(self: object) -> bool:
         return self._connection.isOpen()
 
     @wraps(_Interface.open)
-    def open(self):
+    def open(self: object) -> None:
         self._open()
         super().open()
 
     @wraps(_Interface.close)
-    def close(self):
+    def close(self: object) -> None:
         super().close()
         self._close()
 
 
 class SocketInterface(_Interface):
     """Socket simpleRPC interface."""
-    def _auto_open(f):
+    def _auto_open(f: callable) -> callable:
         """Decorator for automatic opening and closing of ethernet sockets."""
         @wraps(f)
-        def _auto_open_wrapper(self, *args, **kwargs):
+        def _auto_open_wrapper(
+                self: object, *args: list, **kwargs: dict) -> any:
             self._open()
             result = f(self, *args, **kwargs)
             self._close()
@@ -191,7 +195,7 @@ class SocketInterface(_Interface):
         return _auto_open_wrapper
 
     @wraps(_Interface.is_open)
-    def is_open(self):
+    def is_open(self: object) -> bool:
         return len(self.methods) > 0
 
     open = _auto_open(_Interface.open)
@@ -201,7 +205,8 @@ class SocketInterface(_Interface):
 class Interface(object):
     """Generic simpleRPC interface wrapper."""
     @wraps(_Interface.__init__)
-    def __new__(cls, device, *args, **kwargs):
+    def __new__(
+            cls: object, device: str, *args: list, **kwargs: dict) -> object:
         if device.startswith('socket'):
             return SocketInterface(device, *args, **kwargs)
         return SerialInterface(device, *args, **kwargs)

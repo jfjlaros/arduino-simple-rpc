@@ -16,6 +16,9 @@ class {name}(Resource):
 
 
 def _convert_type(t):
+    if not isinstance(t, str):
+        # FIXME: Support for complex types.
+        return 'string'
     if t in _types:
         return _types[t]
     return t

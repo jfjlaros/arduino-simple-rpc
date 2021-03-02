@@ -11,5 +11,5 @@ project = _get_metadata('Name')
 release = _get_metadata('Version')
 
 autoclass_content = 'both'
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc', 'sphinx_autodoc_typehints']
 master_doc = 'index'

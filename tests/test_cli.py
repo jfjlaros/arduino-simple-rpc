@@ -11,17 +11,17 @@ _device = '/dev/ttyACM0'
 _reason = 'device not connected'
 
 
-def test_json_utf8_encode():
+def test_json_utf8_encode() -> None:
     assert json_utf8_encode(['a', ['b', 10]]) == [b'a', [b'b', 10]]
     assert json_utf8_encode(('a', ('b', 10))) == [b'a', [b'b', 10]]
 
 
-def test_json_utf8_decode():
+def test_json_utf8_decode() -> None:
     assert json_utf8_decode([b'a', [b'b', 10]]) == ['a', ['b', 10]]
     assert json_utf8_decode((b'a', (b'b', 10))) == ['a', ['b', 10]]
 
 
-def test_describe_method():
+def test_describe_method() -> None:
     assert (_describe_method({
         'name': 'test',
         'doc': 'Test.',
@@ -35,7 +35,7 @@ def test_describe_method():
 
 
 @mark.skipif(not exists(_device), reason=_reason)
-def test_rpc_list():
+def test_rpc_list() -> None:
     handle = StringIO()
 
     rpc_list(handle, _device, 9600, 1)
@@ -43,7 +43,7 @@ def test_rpc_list():
 
 
 @mark.skipif(not exists(_device), reason=_reason)
-def test_rpc_call():
+def test_rpc_call() -> None:
     handle = StringIO()
 
     rpc_call(handle, _device, 9600, 1, 'ping', ['10'])

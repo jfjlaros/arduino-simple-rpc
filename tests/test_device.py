@@ -13,47 +13,47 @@ if exists(_device):
 
 @mark.skipif(not exists(_device), reason='device not connected')
 class TestLib(object):
-    def test_pre_open(self):
+    def test_pre_open(self: object) -> None:
         assert not _interface.is_open()
         assert _interface.methods == {}
 
-    def test_open(self):
+    def test_open(self: object) -> None:
         _interface.open()
         assert _interface.is_open()
         assert _interface.methods != {}
 
-    def test_version(self):
+    def test_version(self: object) -> None:
         assert _interface._version == _version
 
-    def test_ping(self):
+    def test_ping(self: object) -> None:
         assert _interface.ping(3) == 3
 
-    def test_type_1(self):
+    def test_type_1(self: object) -> None:
         assert _interface.methods['ping']['return']['typename'] == 'int'
 
-    def test_fmt_1(self):
+    def test_fmt_1(self: object) -> None:
         assert _interface.methods['ping']['return']['fmt'] == b'B'
 
-    def test_param_1(self):
+    def test_param_1(self: object) -> None:
         assert _interface.methods['ping']['parameters'][0]['typename'] == 'int'
 
-    def test_param_2(self):
+    def test_param_2(self: object) -> None:
         assert _interface.methods['ping']['parameters'][0]['fmt'] == b'B'
 
-    def test_param_3(self):
+    def test_param_3(self: object) -> None:
         assert _interface.methods['ping']['parameters'][0]['name'] == 'data'
 
-    def test_doc_1(self):
+    def test_doc_1(self: object) -> None:
         assert _interface.methods['ping']['doc'] == 'Echo a value.'
 
-    def test_doc_2(self):
+    def test_doc_2(self: object) -> None:
         assert _interface.methods['ping']['parameters'][0]['doc'] == 'Value.'
 
-    def test_close(self):
+    def test_close(self: object) -> None:
         assert _interface.is_open()
         assert _interface.methods != {}
         _interface.close()
 
-    def test_post_close(self):
+    def test_post_close(self: object) -> None:
         assert not _interface.is_open()
         assert _interface.methods == {}

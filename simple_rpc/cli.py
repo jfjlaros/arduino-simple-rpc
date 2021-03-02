@@ -3,18 +3,19 @@ from json import dumps, loads
 from json.decoder import JSONDecodeError
 from sys import stdout
 from time import sleep
+from typing import BinaryIO
 
 from . import doc_split, usage, version
 from .extras import json_utf8_decode, json_utf8_encode
 from .simple_rpc import Interface
 
 
-def _describe_method(method):
+def _describe_method(method: dict) -> str:
     """Make a human readable description of a method.
 
-    :arg dict method: Method object.
+    :arg method: Method object.
 
-    :returns str: Method data in readable form.
+    :returns: Method data in readable form.
     """
     description = method['name']
 
@@ -41,35 +42,37 @@ def _describe_method(method):
     return description
 
 
-def _loads(string):
+def _loads(string: str) -> str:
     try:
         return loads(string)
     except JSONDecodeError:
         return string
 
 
-def rpc_list(handle, device, baudrate, wait):
+def rpc_list(handle: BinaryIO, device: str, baudrate: int, wait: int) -> None:
     """List the device methods.
 
-    :arg stream handle: Output handle.
-    :arg str device: Device.
-    :arg int baudrate: Baud rate.
-    :arg int wait: Time in seconds before communication starts.
+    :arg handle: Output handle.
+    :arg device: Device.
+    :arg baudrate: Baud rate.
+    :arg wait: Time in seconds before communication starts.
     """
     with Interface(device, baudrate, wait) as interface:
         for method in interface.methods.values():
             handle.write(_describe_method(method) + '\n\n\n')
 
 
-def rpc_call(handle, device, baudrate, wait, name, args):
+def rpc_call(
+        handle: BinaryIO, device: str, baudrate: int, wait: int, name: str,
+        args: list) -> None:
     """Execute a method.
 
-    :arg stream handle: Output handle.
-    :arg str device: Device.
-    :arg int baudrate: Baud rate.
-    :arg int wait: Time in seconds before communication starts.
-    :arg str name: Method name.
-    :arg list args: Method parameters.
+    :arg handle: Output handle.
+    :arg device: Device.
+    :arg baudrate: Baud rate.
+    :arg wait: Time in seconds before communication starts.
+    :arg name: Method name.
+    :arg args: Method parameters.
     """
     args_ = list(map(lambda x: json_utf8_encode(_loads(x)), args))
 
@@ -80,7 +83,7 @@ def rpc_call(handle, device, baudrate, wait, name, args):
             handle.write('{}\n'.format(dumps(json_utf8_decode(result))))
 
 
-def main():
+def main() -> None:
     """Main entry point."""
     common_parser = ArgumentParser(add_help=False)
     common_parser.add_argument(
