@@ -6,13 +6,7 @@ from simple_rpc import Interface
 from simple_rpc.simple_rpc import _version
 
 
-_device = '/dev/ttyACM0'
-if exists(_device):
-    _interface = Interface(_device, autoconnect=False)
-
-
-@mark.skipif(not exists(_device), reason='device not connected')
-class TestLib(object):
+class _TestLib(object):
     def test_pre_open(self: object) -> None:
         assert not _interface.is_open()
         assert _interface.methods == {}
@@ -57,3 +51,33 @@ class TestLib(object):
     def test_post_close(self: object) -> None:
         assert not _interface.is_open()
         assert _interface.methods == {}
+
+
+def test_init_serial() -> None:
+    global _interface
+    _interface = Interface('/dev/ttyACM0', autoconnect=False)
+
+
+@mark.test_device('serial')
+class TestSerial(_TestLib):
+    pass
+
+
+def test_init_wifi() -> None:
+    global _interface
+    _interface = Interface('socket://192.168.21.53:1025', autoconnect=False)
+
+
+@mark.test_device('wifi')
+class TestWiFi(_TestLib):
+    pass
+
+
+def test_init_bluetooth() -> None:
+    global _interface
+    _interface = Interface('/dev/rfcomm0', autoconnect=False)
+
+
+@mark.test_device('bt')
+class TestBluetooth(_TestLib):
+    pass
