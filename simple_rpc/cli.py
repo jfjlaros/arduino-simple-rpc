@@ -85,19 +85,20 @@ def rpc_call(
 
 def main() -> None:
     """Main entry point."""
-    common_parser = ArgumentParser(add_help=False)
+    output_parser = ArgumentParser(add_help=False)
+    output_parser.add_argument(
+        '-o', dest='handle', metavar='OUTPUT', type=FileType('w'),
+        default=stdout, help='output file')
+
+    common_parser = ArgumentParser(add_help=False, parents=[output_parser])
     common_parser.add_argument(
-        '-d', dest='device', type=str, default='/dev/ttyACM0',
-        help='device (%(type)s default="%(default)s")')
+        'device', metavar='DEVICE', type=str, help='device (%(type)s)')
     common_parser.add_argument(
         '-b', dest='baudrate', type=int, default=9600,
         help='baud rate (%(type)s default=%(default)s)')
     common_parser.add_argument(
-        '-w', dest='wait', type=int, default=1,
+        '-w', dest='wait', type=int, default=2,
         help='time before communication starts (%(type)s default=%(default)s)')
-    common_parser.add_argument(
-        '-o', dest='handle', metavar='OUTPUT', type=FileType('w'),
-        default=stdout, help='output file')
 
     parser = ArgumentParser(
         formatter_class=RawDescriptionHelpFormatter,
