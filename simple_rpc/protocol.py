@@ -44,9 +44,9 @@ def _type_name(obj_type: bytes) -> str:
     if not obj_type:
         return ''
     if isinstance(obj_type, list):
-        return [_type_name(item) for item in obj_type]
+        return '[' + ', '.join([_type_name(item) for item in obj_type]) + ']'
     if isinstance(obj_type, tuple):
-        return tuple(_type_name(item) for item in obj_type)
+        return '(' + ', '.join([_type_name(item) for item in obj_type]) + ')'
     return cast(obj_type).__name__
 
 

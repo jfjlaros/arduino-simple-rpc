@@ -68,21 +68,21 @@ def test_type_name_basic() -> None:
 
 
 def test_type_name_tuple_basic() -> None:
-    assert _type_name([b'i', b'c']) == ['int', 'bytes']
-    assert _type_name([b'?', b'f']) == ['bool', 'float']
+    assert _type_name([b'i', b'c']) == '[int, bytes]'
+    assert _type_name([b'?', b'f']) == '[bool, float]'
 
 
 def test_type_name_list_basic() -> None:
-    assert _type_name([[b'i']]) == [['int']]
+    assert _type_name([[b'i']]) == '[[int]]'
 
 
 def test_type_name_object_basic() -> None:
-    assert _type_name([(b'i')]) == [('int')]
+    assert _type_name([(b'i',)]) == '[(int)]'
 
 
 def test_type_name_complex() -> None:
-    assert _type_name([((b'c', b'c'), b'c'), b'i', ([b'c'], )]) == [
-        (('bytes', 'bytes'), 'bytes'), 'int', (['bytes'], )]
+    assert (_type_name([((b'c', b'c'), b'c'), b'i', ([b'c'], )]) ==
+        '[((bytes, bytes), bytes), int, ([bytes])]')
 
 
 def test_parse_signature_basic() -> None:
@@ -103,11 +103,11 @@ def test_parse_signature_complex() -> None:
         'name': 'method2',
         'parameters': [{
             'doc': '', 'fmt': [b'c'], 'name': 'arg0',
-                'typename': ['bytes']}, {
+                'typename': '[bytes]'}, {
             'doc': '', 'fmt': (b'c', b'f'), 'name': 'arg1',
-                'typename': ('bytes', 'float')}],
+                'typename': '(bytes, float)'}],
         'return': {'doc': '', 'fmt': (b'f', b'f'),
-            'typename': ('float', 'float')}}
+            'typename': '(float, float)'}}
 
 
 def test_split_strip() -> None:
