@@ -1,8 +1,7 @@
 from io import BytesIO
 
 from simple_rpc.io import (
-    _end_of_string, _read_basic, _read_bytes_until, _write_basic, cast, read,
-    write)
+    _read_basic, _read_bytes_until, _write_basic, cast, read, write)
 
 
 def _test_invariance_basic(
@@ -42,7 +41,7 @@ def test_cast() -> None:
 def test_read_bytes_until() -> None:
     stream = BytesIO(b'abcdef\0abc')
 
-    assert _read_bytes_until(stream, _end_of_string) == b'abcdef'
+    assert _read_bytes_until(stream, b'\0') == b'abcdef'
 
 
 def test_basic_string() -> None:

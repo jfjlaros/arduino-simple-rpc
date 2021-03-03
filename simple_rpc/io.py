@@ -2,9 +2,6 @@ from typing import BinaryIO
 from struct import calcsize, pack, unpack
 
 
-_end_of_string = b'\0'
-
-
 def _read_bytes_until(stream: BinaryIO, delimiter: bytes) -> bytes:
     """Read bytes from {stream} until the first encounter of {delimiter}.
 
@@ -26,7 +23,7 @@ def _read_basic(stream: BinaryIO, endianness: bytes, basic_type: bytes) -> any:
     :returns: Value of type {basic_type}.
     """
     if basic_type == b's':
-        return _read_bytes_until(stream, _end_of_string)
+        return _read_bytes_until(stream, b'\0')
 
     full_type = endianness + basic_type
 
@@ -44,7 +41,7 @@ def _write_basic(
     :arg value: Value to write.
     """
     if basic_type == b's':
-        stream.write(value + _end_of_string)
+        stream.write(value + b'\0')
         return
 
     full_type = endianness + basic_type
@@ -92,7 +89,7 @@ def read(
 
 
 def read_byte_string(stream: BinaryIO) -> bytes:
-    return _read_bytes_until(stream, _end_of_string)
+    return _read_bytes_until(stream, b'\0')
 
 
 def write(
