@@ -6,8 +6,7 @@ from pytest import mark
 from simple_rpc.cli import _describe_method, rpc_call, rpc_list
 from simple_rpc.extras import json_utf8_decode, json_utf8_encode
 
-
-_device = '/dev/ttyACM0'
+from conf import _devices
 
 
 def test_json_utf8_encode() -> None:
@@ -37,7 +36,7 @@ def test_describe_method() -> None:
 def test_rpc_list() -> None:
     handle = StringIO()
 
-    rpc_list(handle, _device, 9600, 1)
+    rpc_list(handle, _devices['serial'], 9600, 1)
     assert 'ping data\n    Echo a value.\n' in handle.getvalue()
 
 
@@ -45,5 +44,5 @@ def test_rpc_list() -> None:
 def test_rpc_call() -> None:
     handle = StringIO()
 
-    rpc_call(handle, _device, 9600, 1, 'ping', ['10'])
+    rpc_call(handle, _devices['serial'], 9600, 1, 'ping', ['10'])
     assert handle.getvalue() == '10\n'

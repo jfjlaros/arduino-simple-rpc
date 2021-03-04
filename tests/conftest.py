@@ -1,6 +1,5 @@
 from pytest import fixture, skip
 
-
 def pytest_addoption(parser: object) -> None:
     parser.addoption('--device', type=str, default='')
 
