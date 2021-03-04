@@ -8,16 +8,16 @@ the ``-h`` option.
 
 ::
 
-    simple_rpc -h
+    $ simple_rpc -h
 
 .. note::
 
     Please note that the initialisation procedure has a built in two second
-    delay which can be modified with the `-w` parameter. For each invocation of
-    ``list`` or ``call``, the device is reset and reinitialised, so using the
-    command line interface for time critical or high speed applications is not
-    advised. For these types of applications, the :doc:`library` should be used
-    directly instead.
+    delay which can be modified with the ``-w`` parameter. For each invocation
+    of ``list`` or ``call``, the device is reset and reinitialised, so using
+    the command line interface for time critical or high speed applications is
+    not advised. For these types of applications, the :doc:`library` should be
+    used directly instead.
 
 
 Connecting
@@ -25,14 +25,14 @@ Connecting
 
 To detect serial devices, we recommend using the arduino-cli_ toolkit.
 
+::
+
     $ arduino-cli board list
     Port         Type              Board Name                FQBN             Core
     /dev/ttyACM0 Serial Port (USB) Arduino Mega or Mega 2560 arduino:avr:mega arduino:avr
 
-.. note::
-
-    This command will not detect any devices connected via ethernet or WiFi.
-    Use a URL_ (e.g., ``socket://192.168.1.50:10000``) instead.
+This command will not detect any devices connected via ethernet or WiFi. Use a
+URL_ (e.g., ``socket://192.168.1.50:10000``) instead.
 
 
 Method discovery
@@ -49,7 +49,7 @@ Alternatively, for ethernet and WiFi devices.
 
 ::
 
-    simple_rpc list socket://192.168.1.50:10000
+    $ simple_rpc list socket://192.168.1.50:10000
 
 If the Arduino has exposed the functions ``inc`` and ``set_led`` like in the
 example_ given in the device library documentation, the ``list`` subcommand
