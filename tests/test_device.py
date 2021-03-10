@@ -1,5 +1,3 @@
-from os.path import exists
-
 from pytest import mark
 
 from simple_rpc import Interface

@@ -4,7 +4,6 @@ from types import MethodType
 
 from serial import serial_for_url
 from serial.serialutil import SerialException
-from serial.urlhandler.protocol_socket import Serial as socket_serial
 
 from .extras import make_function
 from .io import read, read_byte_string, until, write
@@ -50,8 +49,8 @@ class _Interface(object):
     def _open(self: object) -> None:
         try:
             self._connection.open()
-        except SerialException as error:
-            raise IOError(error.strerror.split(':')[0])
+        except SerialException:
+            raise IOError('could not open device')
 
     def _close(self: object) -> None:
         self._connection.close()

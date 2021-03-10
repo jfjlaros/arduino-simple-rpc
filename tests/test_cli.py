@@ -1,5 +1,4 @@
 from io import StringIO
-from os.path import exists
 
 from pytest import mark
 
@@ -28,8 +27,8 @@ def test_describe_method() -> None:
             {'name': 'b', 'typename': 'str', 'doc': 'Parameter b.'}],
         'return': {
             'fmt': b'f', 'typename': 'float', 'doc': 'Return value.'}}) ==
-        "test a b\n    Test.\n\n    int a: Parameter a.\n"
-        "    str b: Parameter b.\n\n    returns float: Return value.")
+            "test a b\n    Test.\n\n    int a: Parameter a.\n"
+            "    str b: Parameter b.\n\n    returns float: Return value.")
 
 
 @mark.test_device('serial')

@@ -19,6 +19,7 @@ def test_parse_type_tuple() -> None:
     else:
         assert False
 
+
 def test_parse_type_list_basic() -> None:
     assert _parse_type(b'[i]') == [b'i']
 
@@ -82,7 +83,7 @@ def test_type_name_object_basic() -> None:
 
 def test_type_name_complex() -> None:
     assert (_type_name([((b'c', b'c'), b'c'), b'i', ([b'c'], )]) ==
-        '[((bytes, bytes), bytes), int, ([bytes])]')
+            '[((bytes, bytes), bytes), int, ([bytes])]')
 
 
 def test_parse_signature_basic() -> None:
@@ -105,9 +106,9 @@ def test_parse_signature_complex() -> None:
             'doc': '', 'fmt': [b'c'], 'name': 'arg0',
                 'typename': '[bytes]'}, {
             'doc': '', 'fmt': (b'c', b'f'), 'name': 'arg1',
-                'typename': '(bytes, float)'}],
+                   'typename': '(bytes, float)'}],
         'return': {'doc': '', 'fmt': (b'f', b'f'),
-            'typename': '(float, float)'}}
+                   'typename': '(float, float)'}}
 
 
 def test_split_strip() -> None:

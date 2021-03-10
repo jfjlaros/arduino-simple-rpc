@@ -81,7 +81,7 @@ def read(
         length = _read_basic(stream, endianness, size_t)
         return [
             read(stream, endianness, size_t, item) for _ in range(length)
-                for item in obj_type]
+            for item in obj_type]
     if isinstance(obj_type, tuple):
         return tuple(
             read(stream, endianness, size_t, item) for item in obj_type)

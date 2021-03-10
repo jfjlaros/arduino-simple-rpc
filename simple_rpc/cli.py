@@ -2,7 +2,6 @@ from argparse import ArgumentParser, FileType, RawDescriptionHelpFormatter
 from json import dumps, loads
 from json.decoder import JSONDecodeError
 from sys import stdout
-from time import sleep
 from typing import BinaryIO
 
 from . import doc_split, usage, version
@@ -79,7 +78,7 @@ def rpc_call(
     with Interface(device, baudrate, wait) as interface:
         result = interface.call_method(name, *args_)
 
-        if result != None:
+        if result is not None:
             handle.write('{}\n'.format(dumps(json_utf8_decode(result))))
 
 
@@ -127,7 +126,7 @@ def main() -> None:
 
     try:
         args.func(**{k: v for k, v in vars(args).items()
-            if k not in ('func', 'subcommand')})
+                  if k not in ('func', 'subcommand')})
     except (IOError, TypeError, ValueError) as error:
         parser.error(error)
 

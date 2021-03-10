@@ -3,6 +3,7 @@
 arduino_simple_rpc.egg-info/
 build/
 dist/
+examples/wifi/__pycache__
 simple_rpc/*.pyc
 simple_rpc/__pycache__/
 tests/__pycache__/
