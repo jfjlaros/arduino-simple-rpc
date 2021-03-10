@@ -3,8 +3,8 @@ Arduino simpleRPC API client library and CLI
 
 .. image:: https://img.shields.io/github/last-commit/jfjlaros/arduino-simple-rpc.svg
    :target: https://github.com/jfjlaros/arduino-simple-rpc/graphs/commit-activity
-.. image:: https://travis-ci.org/jfjlaros/arduino-simple-rpc.svg?branch=master
-   :target: https://travis-ci.org/jfjlaros/arduino-simple-rpc
+.. image:: https://github.com/jfjlaros/arduino-simple-rpc/actions/workflows/python-package.yml/badge.svg
+   :target: https://github.com/jfjlaros/arduino-simple-rpc/actions/workflows/python-package.yml
 .. image:: https://readthedocs.org/projects/simplerpc/badge/?version=latest
    :target: https://arduino-simple-rpc.readthedocs.io/en/latest
 .. image:: https://img.shields.io/github/release-date/jfjlaros/arduino-simple-rpc.svg
