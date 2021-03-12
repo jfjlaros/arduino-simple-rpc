@@ -32,7 +32,7 @@ To detect serial devices, we recommend using the arduino-cli_ toolkit.
     /dev/ttyACM0 Serial Port (USB) Arduino Mega or Mega 2560 arduino:avr:mega arduino:avr
 
 This command will not detect any devices connected via ethernet or WiFi. Use a
-URL_ (e.g., ``socket://192.168.1.50:10000``) instead.
+URL (e.g., ``socket://192.168.1.50:10000``) instead.
 
 
 Method discovery

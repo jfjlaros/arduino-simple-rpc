@@ -133,7 +133,7 @@ class _Interface(object):
         """Execute a method.
 
         :arg name: Method name.
-        :arg *args: Method parameters.
+        :arg args: Method parameters.
 
         :returns: Return value of the method.
         """

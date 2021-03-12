@@ -7,6 +7,7 @@
    introduction
    install
    usage
+   cli
    library
    api
    credits

@@ -1,4 +1,4 @@
-from argparse import ArgumentParser, FileType, RawDescriptionHelpFormatter
+from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser, FileType
 from json import dumps, loads
 from json.decoder import JSONDecodeError
 from sys import stdout
@@ -82,25 +82,25 @@ def rpc_call(
             handle.write('{}\n'.format(dumps(json_utf8_decode(result))))
 
 
-def main() -> None:
-    """Main entry point."""
+def _arg_parser() -> object:
+    """Command line argument parsing."""
     output_parser = ArgumentParser(add_help=False)
     output_parser.add_argument(
         '-o', dest='handle', metavar='OUTPUT', type=FileType('w'),
-        default=stdout, help='output file')
+        default='-', help='output file')
 
     common_parser = ArgumentParser(add_help=False, parents=[output_parser])
     common_parser.add_argument(
-        'device', metavar='DEVICE', type=str, help='device (%(type)s)')
+        'device', metavar='DEVICE', type=str, help='device')
     common_parser.add_argument(
         '-b', dest='baudrate', type=int, default=9600,
-        help='baud rate (%(type)s default=%(default)s)')
+        help='baud rate')
     common_parser.add_argument(
         '-w', dest='wait', type=int, default=2,
-        help='time before communication starts (%(type)s default=%(default)s)')
+        help='time before communication starts')
 
     parser = ArgumentParser(
-        formatter_class=RawDescriptionHelpFormatter,
+        formatter_class=ArgumentDefaultsHelpFormatter,
         description=usage[0], epilog=usage[1])
     parser.add_argument(
         '-v', action='version', version=version(parser.prog))
@@ -108,16 +108,25 @@ def main() -> None:
     subparsers.required = True
 
     subparser = subparsers.add_parser(
-        'list', parents=[common_parser], description=doc_split(rpc_list))
+        'list', formatter_class=ArgumentDefaultsHelpFormatter,
+        parents=[common_parser], description=doc_split(rpc_list))
     subparser.set_defaults(func=rpc_list)
 
     subparser = subparsers.add_parser(
-        'call', parents=[common_parser], description=doc_split(rpc_call))
+        'call', formatter_class=ArgumentDefaultsHelpFormatter,
+        parents=[common_parser], description=doc_split(rpc_call))
     subparser.set_defaults(func=rpc_call)
     subparser.add_argument(
         'name', metavar='NAME', type=str, help='command name')
     subparser.add_argument(
         'args', metavar='ARG', type=str, nargs='*', help='command parameter')
+
+    return parser
+
+
+def main() -> None:
+    """Main entry point."""
+    parser = _arg_parser()
 
     try:
         args = parser.parse_args()
