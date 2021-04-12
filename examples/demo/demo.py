@@ -22,7 +22,7 @@ while i < 10:
 stdout.write('\nStarting speed test ({} cycles) '.format(cycles))
 stdout.flush()
 
-start_time = interface.time()
+start_time = interface.milli_time()
 for _ in range(cycles):
     for i in range(256):
         interface.set_led(i)
@@ -32,6 +32,6 @@ for _ in range(cycles):
     stdout.flush()
 
 calls = 512 * cycles
-duration = (interface.time() - start_time) / 1000
+duration = (interface.milli_time() - start_time) / 1000
 stdout.write('\n{} calls in {:.02f} seconds ({} calls/sec)\n'.format(
     calls, duration, int(calls // duration)))
