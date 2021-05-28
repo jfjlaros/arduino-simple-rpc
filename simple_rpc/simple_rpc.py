@@ -1,9 +1,11 @@
 from functools import wraps
 from time import sleep
 from types import MethodType
+from typing import TextIO
 
 from serial import serial_for_url
 from serial.serialutil import SerialException
+from yaml import safe_dump, safe_load
 
 from .extras import make_function
 from .io import read, read_byte_string, until, write
@@ -11,7 +13,7 @@ from .protocol import parse_line
 
 
 _protocol = b'simpleRPC'
-_version = (3, 0, 0)
+_version = (3, 0, 0)  # TODO: Replace tuples with lists for serialisation.
 
 _list_req = 0xff
 
@@ -20,17 +22,20 @@ class _Interface(object):
     """Generic simpleRPC interface."""
     def __init__(
             self: object, device: str, baudrate: int=9600, wait: int=2,
-            autoconnect: bool=True) -> None:
+            autoconnect: bool=True, load: TextIO=None) -> None:
         """
         :arg device: Device name.
         :arg baudrate: Baud rate.
         :arg wait: Time in seconds before communication starts.
         :arg autoconnect: Automatically connect.
+        :arg load: Load interface definition from file.
         """
         self._wait = wait
 
         self._connection = serial_for_url(
             device, do_not_open=True, baudrate=baudrate)
+        self._load = load
+        # TODO: Put all of these in one object.
         self._version = (0, 0, 0)
         self._endianness = b'<'
         self._size_t = b'H'
@@ -118,7 +123,10 @@ class _Interface(object):
         """Connect to device."""
         sleep(self._wait)
 
-        self.methods = self._get_methods()
+        if self._load:
+            self.load()
+        else:
+            self.methods = self._get_methods()
         for method in self.methods.values():
             setattr(
                 self, method['name'], MethodType(make_function(method), self))
@@ -159,6 +167,31 @@ class _Interface(object):
         if method['return']['fmt']:
             return self._read(method['return']['fmt'])
         return None
+
+    def save(self: object, handle: TextIO) -> None:
+        """Save the interface definition to a file.
+
+        :arg handle: Open file handle.
+        """
+        safe_dump(
+            {
+                'version': self._version,
+                'endianness': self._endianness,
+                'size_t': self._size_t,
+                'methods': self.methods
+            },
+            handle, width=76, default_flow_style=False)
+
+    def load(self: object) -> None:
+        """Load the interface definition from a file.
+
+        :arg handle: Open file handle.
+        """
+        definition = safe_load(self._load)
+        self._version = definition['version']
+        self._endianness = definition['endianness']
+        self._size_t = definition['size_t']
+        self.methods = definition['methods']
 
 
 class SerialInterface(_Interface):
