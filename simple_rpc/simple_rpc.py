@@ -5,7 +5,7 @@ from typing import TextIO
 
 from serial import serial_for_url
 from serial.serialutil import SerialException
-from yaml import dump, load
+from yaml import FullLoader, dump, load
 
 from .extras import make_function
 from .io import read, read_byte_string, until, write
@@ -16,6 +16,19 @@ _protocol = 'simpleRPC'
 _version = (3, 0, 0)
 
 _list_req = 0xff
+
+
+def _assert_protocol(protocol: str) -> None:
+    if protocol != _protocol:
+        raise ValueError('invalid protocol header')
+
+
+def _assert_version(version: tuple) -> None:
+    if version[0] != _version[0] or version[1] > _version[1]:
+        raise ValueError(
+            'version mismatch (device: {}, client: {})'.format(
+                '.'.join(map(str, version)),
+                '.'.join(map(str, _version))))
 
 
 class _Interface(object):
@@ -34,12 +47,13 @@ class _Interface(object):
 
         self._connection = serial_for_url(
             device, do_not_open=True, baudrate=baudrate)
-        self._load = load  # TODO: Content checking.
+        self._load = load
         self.device = {
-            'version': (0, 0, 0),
             'endianness': '<',
+            'methods': {},
+            'protocol': '',
             'size_t': 'H',
-            'methods': {}}
+            'version': (0, 0, 0)}
 
         if autoconnect:
             self.open()
@@ -98,15 +112,11 @@ class _Interface(object):
         """
         self._select(_list_req)
 
-        if self._read_byte_string().decode() != _protocol:
-            raise ValueError('missing protocol header')
+        _assert_protocol(self._read_byte_string().decode())
+        self.device['protocol'] = _protocol
 
         version = tuple(self._read('B') for _ in range(3))
-        if version[0] != _version[0] or version[1] > _version[1]:
-            raise ValueError(
-                'version mismatch (device: {}, client: {})'.format(
-                    '.'.join(map(str, version)),
-                    '.'.join(map(str, _version))))
+        _assert_version(version)
         self.device['version'] = version
 
         self.device['endianness'], self.device['size_t'] = (
@@ -178,23 +188,13 @@ class _Interface(object):
 
         :arg handle: Open file handle.
         """
-        dump(
-            #{
-            #    'version': self._version,
-            #    'endianness': self._endianness,
-            #    'size_t': self._size_t,
-            #    'methods': self.methods
-            #},
-            self.device,
-            handle, width=76, default_flow_style=False)
+        dump(self.device, handle, width=76, default_flow_style=False)
 
     def load(self: object) -> None:
         """Load the interface definition from a file."""
-        self.device = load(self._load)
-        #self._version = definition['version']
-        #self._endianness = definition['endianness']
-        #self._size_t = definition['size_t']
-        #self.methods = definition['methods']
+        self.device = load(self._load, Loader=FullLoader)
+        _assert_protocol(self.device['protocol'])
+        _assert_version(self.device['version'])
 
 
 class SerialInterface(_Interface):
