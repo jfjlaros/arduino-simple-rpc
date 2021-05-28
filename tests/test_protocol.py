@@ -4,11 +4,11 @@ from simple_rpc.protocol import (
 
 
 def test_parse_type_none() -> None:
-    assert _parse_type(b'') == b''
+    assert _parse_type(b'') == ''
 
 
 def test_parse_type_basic() -> None:
-    assert _parse_type(b'i') == b'i'
+    assert _parse_type(b'i') == 'i'
 
 
 def test_parse_type_tuple() -> None:
@@ -21,40 +21,40 @@ def test_parse_type_tuple() -> None:
 
 
 def test_parse_type_list_basic() -> None:
-    assert _parse_type(b'[i]') == [b'i']
+    assert _parse_type(b'[i]') == ['i']
 
 
 def test_parse_type_object_basic() -> None:
-    assert _parse_type(b'(i)') == (b'i', )
+    assert _parse_type(b'(i)') == ('i', )
 
 
 def test_parse_type_list_tuple() -> None:
-    assert _parse_type(b'[ic]') == [b'i', b'c']
+    assert _parse_type(b'[ic]') == ['i', 'c']
 
 
 def test_parse_type_list_object() -> None:
-    assert _parse_type(b'[(ic)]') == [(b'i', b'c')]
+    assert _parse_type(b'[(ic)]') == [('i', 'c')]
 
 
 def test_parse_type_list_list() -> None:
-    assert _parse_type(b'[[i]]') == [[b'i']]
+    assert _parse_type(b'[[i]]') == [['i']]
 
 
 def test_parse_type_object_tuple() -> None:
-    assert _parse_type(b'(ic)') == (b'i', b'c')
+    assert _parse_type(b'(ic)') == ('i', 'c')
 
 
 def test_parse_type_object_list() -> None:
-    assert _parse_type(b'([i])') == ([b'i'], )
+    assert _parse_type(b'([i])') == (['i'], )
 
 
 def test_parse_type_object_object() -> None:
-    assert _parse_type(b'((ic))') == ((b'i', b'c'), )
+    assert _parse_type(b'((ic))') == (('i', 'c'), )
 
 
 def test_parse_type_complex() -> None:
     assert _parse_type(b'(((cc)c)i([c]))') == (
-        ((b'c', b'c'), b'c'), b'i', ([b'c'], ), )
+        (('c', 'c'), 'c'), 'i', (['c'], ), )
 
 
 def test_type_name_none() -> None:
@@ -62,27 +62,27 @@ def test_type_name_none() -> None:
 
 
 def test_type_name_basic() -> None:
-    assert _type_name(b'c') == 'bytes'
-    assert _type_name(b'i') == 'int'
-    assert _type_name(b'?') == 'bool'
-    assert _type_name(b'f') == 'float'
+    assert _type_name('c') == 'bytes'
+    assert _type_name('i') == 'int'
+    assert _type_name('?') == 'bool'
+    assert _type_name('f') == 'float'
 
 
 def test_type_name_tuple_basic() -> None:
-    assert _type_name([b'i', b'c']) == '[int, bytes]'
-    assert _type_name([b'?', b'f']) == '[bool, float]'
+    assert _type_name(['i', 'c']) == '[int, bytes]'
+    assert _type_name(['?', 'f']) == '[bool, float]'
 
 
 def test_type_name_list_basic() -> None:
-    assert _type_name([[b'i']]) == '[[int]]'
+    assert _type_name([['i']]) == '[[int]]'
 
 
 def test_type_name_object_basic() -> None:
-    assert _type_name([(b'i',)]) == '[(int)]'
+    assert _type_name([('i',)]) == '[(int)]'
 
 
 def test_type_name_complex() -> None:
-    assert (_type_name([((b'c', b'c'), b'c'), b'i', ([b'c'], )]) ==
+    assert (_type_name([(('c', 'c'), 'c'), 'i', (['c'], )]) ==
             '[((bytes, bytes), bytes), int, ([bytes])]')
 
 
@@ -92,9 +92,9 @@ def test_parse_signature_basic() -> None:
         'index': 1,
         'name': 'method1',
         'parameters': [{
-            'doc': '', 'fmt': b'c', 'name': 'arg0', 'typename': 'bytes'}, {
-            'doc': '', 'fmt': b'f', 'name': 'arg1', 'typename': 'float'}],
-        'return': {'doc': '', 'fmt': b'', 'typename': ''}}
+            'doc': '', 'fmt': 'c', 'name': 'arg0', 'typename': 'bytes'}, {
+            'doc': '', 'fmt': 'f', 'name': 'arg1', 'typename': 'float'}],
+        'return': {'doc': '', 'fmt': '', 'typename': ''}}
 
 
 def test_parse_signature_complex() -> None:
@@ -103,11 +103,11 @@ def test_parse_signature_complex() -> None:
         'index': 2,
         'name': 'method2',
         'parameters': [{
-            'doc': '', 'fmt': [b'c'], 'name': 'arg0',
+            'doc': '', 'fmt': ['c'], 'name': 'arg0',
                 'typename': '[bytes]'}, {
-            'doc': '', 'fmt': (b'c', b'f'), 'name': 'arg1',
+            'doc': '', 'fmt': ('c', 'f'), 'name': 'arg1',
                    'typename': '(bytes, float)'}],
-        'return': {'doc': '', 'fmt': (b'f', b'f'),
+        'return': {'doc': '', 'fmt': ('f', 'f'),
                    'typename': '(float, float)'}}
 
 

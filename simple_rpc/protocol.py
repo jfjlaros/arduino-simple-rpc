@@ -10,7 +10,7 @@ def _parse_type(type_str: bytes) -> any:
 
     :returns: Type object.
     """
-    def _construct_type(tokens):
+    def _construct_type(tokens: tuple):
         obj_type = []
 
         for token in tokens:
@@ -21,7 +21,7 @@ def _parse_type(type_str: bytes) -> any:
             elif token in (b')', b']'):
                 break
             else:
-                obj_type.append(token)
+                obj_type.append(token.decode())
 
         return obj_type
 
@@ -30,14 +30,14 @@ def _parse_type(type_str: bytes) -> any:
     if len(obj_type) > 1:
         raise ValueError('top level type can not be tuple')
     if not obj_type:
-        return b''
+        return ''
     return obj_type[0]
 
 
-def _type_name(obj_type: bytes) -> str:
-    """Python type name of a C type.
+def _type_name(obj_type: any) -> str:
+    """Python type name of a C object type.
 
-    :arg c_type: C type.
+    :arg obj_type: C object type.
 
     :returns: Python type name.
     """
@@ -84,7 +84,7 @@ def _strip_split(string: str, delimiter: str) -> list:
     return list(map(lambda x: x.strip(), string.split(delimiter)))
 
 
-def _add_doc(method: dict, doc: str) -> None:
+def _add_doc(method: dict, doc: bytes) -> None:
     """Add documentation to a method object.
 
     :arg method: Method object.

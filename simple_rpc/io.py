@@ -13,7 +13,7 @@ def _read_bytes_until(stream: BinaryIO, delimiter: bytes) -> bytes:
     return b''.join(until(lambda x: x == delimiter, stream.read, 1))
 
 
-def _read_basic(stream: BinaryIO, endianness: bytes, basic_type: bytes) -> any:
+def _read_basic(stream: BinaryIO, endianness: str, basic_type: str) -> any:
     """Read a value of basic type from a stream.
 
     :arg stream: Stream object.
@@ -22,16 +22,16 @@ def _read_basic(stream: BinaryIO, endianness: bytes, basic_type: bytes) -> any:
 
     :returns: Value of type {basic_type}.
     """
-    if basic_type == b's':
+    if basic_type == 's':
         return _read_bytes_until(stream, b'\0')
 
-    full_type = endianness + basic_type
+    full_type = (endianness + basic_type).encode('utf-8')
 
     return unpack(full_type, stream.read(calcsize(full_type)))[0]
 
 
 def _write_basic(
-        stream: BinaryIO, endianness: bytes, basic_type: bytes, value: any
+        stream: BinaryIO, endianness: str, basic_type: str, value: any
         ) -> None:
     """Write a value of basic type to a stream.
 
@@ -40,33 +40,33 @@ def _write_basic(
     :arg basic_type: Type of {value}.
     :arg value: Value to write.
     """
-    if basic_type == b's':
+    if basic_type == 's':
         stream.write(value + b'\0')
         return
 
-    full_type = endianness + basic_type
+    full_type = (endianness + basic_type).encode('utf-8')
 
     stream.write(pack(full_type, cast(basic_type)(value)))
 
 
-def cast(c_type: bytes) -> object:
+def cast(c_type: str) -> object:
     """Select the appropriate casting function given a C type.
 
     :arg c_type: C type.
 
     :returns: Casting function.
     """
-    if c_type == b'?':
+    if c_type == '?':
         return bool
-    if c_type in [b'c', b's']:
+    if c_type in ['c', 's']:
         return bytes
-    if c_type in [b'f', b'd']:
+    if c_type in ['f', 'd']:
         return float
     return int
 
 
 def read(
-        stream: BinaryIO, endianness: bytes, size_t: bytes, obj_type: any
+        stream: BinaryIO, endianness: str, size_t: str, obj_type: any
         ) -> any:
     """Read an object from a stream.
 
@@ -93,7 +93,7 @@ def read_byte_string(stream: BinaryIO) -> bytes:
 
 
 def write(
-        stream: BinaryIO, endianness: bytes, size_t: bytes, obj_type: any,
+        stream: BinaryIO, endianness: str, size_t: str, obj_type: any,
         obj: any) -> None:
     """Write an object to a stream.
 

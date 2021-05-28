@@ -35,7 +35,7 @@ def test_describe_method() -> None:
 def test_rpc_list() -> None:
     handle = StringIO()
 
-    rpc_list(handle, _devices['serial'], 9600, 1)
+    rpc_list(handle, _devices['serial'], 9600, 1, None)
     assert 'ping data\n    Echo a value.\n' in handle.getvalue()
 
 
@@ -43,5 +43,5 @@ def test_rpc_list() -> None:
 def test_rpc_call() -> None:
     handle = StringIO()
 
-    rpc_call(handle, _devices['serial'], 9600, 1, 'ping', ['10'])
+    rpc_call(handle, _devices['serial'], 9600, 1, None, 'ping', ['10'])
     assert handle.getvalue() == '10\n'

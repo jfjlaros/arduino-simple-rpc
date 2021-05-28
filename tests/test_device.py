@@ -26,7 +26,7 @@ class _TestDevice(object):
         assert self._interface.methods['ping']['return']['typename'] == 'int'
 
     def test_fmt_1(self: object) -> None:
-        assert self._interface.methods['ping']['return']['fmt'] == b'B'
+        assert self._interface.methods['ping']['return']['fmt'] == 'B'
 
     def test_param_1(self: object) -> None:
         assert (
@@ -34,7 +34,7 @@ class _TestDevice(object):
             'int')
 
     def test_param_2(self: object) -> None:
-        assert self._interface.methods['ping']['parameters'][0]['fmt'] == b'B'
+        assert self._interface.methods['ping']['parameters'][0]['fmt'] == 'B'
 
     def test_param_3(self: object) -> None:
         assert (

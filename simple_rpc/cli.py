@@ -68,17 +68,17 @@ def rpc_list(
 
 
 def rpc_call(
-        handle: BinaryIO, device: str, baudrate: int, wait: int, name: str,
-        args: list, load: TextIO) -> None:
+        handle: BinaryIO, device: str, baudrate: int, wait: int, load: TextIO,
+        name: str, args: list) -> None:
     """Execute a method.
 
     :arg handle: Output handle.
     :arg device: Device.
     :arg baudrate: Baud rate.
     :arg wait: Time in seconds before communication starts.
+    :arg load: Interface definition file.
     :arg name: Method name.
     :arg args: Method parameters.
-    :arg load: Interface definition file.
     """
     args_ = list(map(lambda x: json_utf8_encode(_loads(x)), args))
 

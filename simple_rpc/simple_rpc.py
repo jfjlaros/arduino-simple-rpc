@@ -5,15 +5,15 @@ from typing import TextIO
 
 from serial import serial_for_url
 from serial.serialutil import SerialException
-from yaml import safe_dump, safe_load
+from yaml import dump, load
 
 from .extras import make_function
 from .io import read, read_byte_string, until, write
 from .protocol import parse_line
 
 
-_protocol = b'simpleRPC'
-_version = (3, 0, 0)  # TODO: Replace tuples with lists for serialisation.
+_protocol = 'simpleRPC'
+_version = (3, 0, 0)
 
 _list_req = 0xff
 
@@ -37,8 +37,8 @@ class _Interface(object):
         self._load = load
         # TODO: Put all of these in one object.
         self._version = (0, 0, 0)
-        self._endianness = b'<'
-        self._size_t = b'H'
+        self._endianness = '<'
+        self._size_t = 'H'
         self.methods = {}
 
         if autoconnect:
@@ -65,9 +65,9 @@ class _Interface(object):
 
         :arg index: Method index.
         """
-        self._write(b'B', index)
+        self._write('B', index)
 
-    def _write(self: object, obj_type: bytes, obj: any) -> None:
+    def _write(self: object, obj_type: any, obj: any) -> None:
         """Provide parameters for a remote procedure call.
 
         :arg obj_type: Type of the parameter.
@@ -78,7 +78,7 @@ class _Interface(object):
     def _read_byte_string(self: object) -> bytes:
         return read_byte_string(self._connection)
 
-    def _read(self: object, obj_type: str) -> any:
+    def _read(self: object, obj_type: any) -> any:
         """Read a return value from a remote procedure call.
 
         :arg obj_type: Return type.
@@ -94,10 +94,10 @@ class _Interface(object):
         """
         self._select(_list_req)
 
-        if self._read_byte_string() != _protocol:
+        if self._read_byte_string().decode() != _protocol:
             raise ValueError('missing protocol header')
 
-        self._version = tuple(self._read(b'B') for _ in range(3))
+        self._version = tuple(self._read('B') for _ in range(3))
         if self._version[0] != _version[0] or self._version[1] > _version[1]:
             raise ValueError(
                 'version mismatch (device: {}, client: {})'.format(
@@ -105,7 +105,7 @@ class _Interface(object):
                     '.'.join(map(str, _version))))
 
         self._endianness, self._size_t = (
-            bytes([c]) for c in self._read_byte_string())
+            chr(c) for c in self._read_byte_string())
 
         methods = {}
         for index, line in enumerate(
@@ -173,7 +173,7 @@ class _Interface(object):
 
         :arg handle: Open file handle.
         """
-        safe_dump(
+        dump(
             {
                 'version': self._version,
                 'endianness': self._endianness,
@@ -183,11 +183,8 @@ class _Interface(object):
             handle, width=76, default_flow_style=False)
 
     def load(self: object) -> None:
-        """Load the interface definition from a file.
-
-        :arg handle: Open file handle.
-        """
-        definition = safe_load(self._load)
+        """Load the interface definition from a file."""
+        definition = load(self._load)
         self._version = definition['version']
         self._endianness = definition['endianness']
         self._size_t = definition['size_t']
