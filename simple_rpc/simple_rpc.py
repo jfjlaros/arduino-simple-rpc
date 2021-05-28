@@ -34,12 +34,12 @@ class _Interface(object):
 
         self._connection = serial_for_url(
             device, do_not_open=True, baudrate=baudrate)
-        self._load = load
-        # TODO: Put all of these in one object.
-        self._version = (0, 0, 0)
-        self._endianness = '<'
-        self._size_t = 'H'
-        self.methods = {}
+        self._load = load  # TODO: Content checking.
+        self.device = {
+            'version': (0, 0, 0),
+            'endianness': '<',
+            'size_t': 'H',
+            'methods': {}}
 
         if autoconnect:
             self.open()
@@ -73,7 +73,9 @@ class _Interface(object):
         :arg obj_type: Type of the parameter.
         :arg obj: Value of the parameter.
         """
-        write(self._connection, self._endianness, self._size_t, obj_type, obj)
+        write(
+            self._connection, self.device['endianness'], self.device['size_t'],
+            obj_type, obj)
 
     def _read_byte_string(self: object) -> bytes:
         return read_byte_string(self._connection)
@@ -85,7 +87,9 @@ class _Interface(object):
 
         :returns: Return value.
         """
-        return read(self._connection, self._endianness, self._size_t, obj_type)
+        return read(
+            self._connection, self.device['endianness'], self.device['size_t'],
+            obj_type)
 
     def _get_methods(self: object) -> dict:
         """Get remote procedure call methods.
@@ -97,14 +101,15 @@ class _Interface(object):
         if self._read_byte_string().decode() != _protocol:
             raise ValueError('missing protocol header')
 
-        self._version = tuple(self._read('B') for _ in range(3))
-        if self._version[0] != _version[0] or self._version[1] > _version[1]:
+        version = tuple(self._read('B') for _ in range(3))
+        if version[0] != _version[0] or version[1] > _version[1]:
             raise ValueError(
                 'version mismatch (device: {}, client: {})'.format(
-                    '.'.join(map(str, self._version)),
+                    '.'.join(map(str, version)),
                     '.'.join(map(str, _version))))
+        self.device['version'] = version
 
-        self._endianness, self._size_t = (
+        self.device['endianness'], self.device['size_t'] = (
             chr(c) for c in self._read_byte_string())
 
         methods = {}
@@ -126,16 +131,16 @@ class _Interface(object):
         if self._load:
             self.load()
         else:
-            self.methods = self._get_methods()
-        for method in self.methods.values():
+            self.device['methods'] = self._get_methods()
+        for method in self.device['methods'].values():
             setattr(
                 self, method['name'], MethodType(make_function(method), self))
 
     def close(self: object) -> None:
         """Disconnect from device."""
-        for method in self.methods:
+        for method in self.device['methods']:
             delattr(self, method)
-        self.methods.clear()
+        self.device['methods'].clear()
 
     def call_method(self: object, name: str, *args: list) -> any:
         """Execute a method.
@@ -145,9 +150,9 @@ class _Interface(object):
 
         :returns: Return value of the method.
         """
-        if name not in self.methods:
+        if name not in self.device['methods']:
             raise ValueError('invalid method name: {}'.format(name))
-        method = self.methods[name]
+        method = self.device['methods'][name]
 
         parameters = method['parameters']
         if len(args) != len(parameters):
@@ -174,21 +179,22 @@ class _Interface(object):
         :arg handle: Open file handle.
         """
         dump(
-            {
-                'version': self._version,
-                'endianness': self._endianness,
-                'size_t': self._size_t,
-                'methods': self.methods
-            },
+            #{
+            #    'version': self._version,
+            #    'endianness': self._endianness,
+            #    'size_t': self._size_t,
+            #    'methods': self.methods
+            #},
+            self.device,
             handle, width=76, default_flow_style=False)
 
     def load(self: object) -> None:
         """Load the interface definition from a file."""
-        definition = load(self._load)
-        self._version = definition['version']
-        self._endianness = definition['endianness']
-        self._size_t = definition['size_t']
-        self.methods = definition['methods']
+        self.device = load(self._load)
+        #self._version = definition['version']
+        #self._endianness = definition['endianness']
+        #self._size_t = definition['size_t']
+        #self.methods = definition['methods']
 
 
 class SerialInterface(_Interface):
@@ -225,7 +231,7 @@ class SocketInterface(_Interface):
 
     @wraps(_Interface.is_open)
     def is_open(self: object) -> bool:
-        return len(self.methods) > 0
+        return len(self.device['methods']) > 0
 
     open = _auto_open(_Interface.open)
     call_method = _auto_open(_Interface.call_method)

@@ -124,19 +124,19 @@ Additionally, the ``with`` statement is supported for easy opening and closing.
     >>> with Interface('/dev/ttyACM0') as interface:
     >>>     interface.ping(10)
 
-The class instance has a public member variable named ``methods`` which
-contains the definitions of the exported methods.
+The class instance has a public member variable named ``device`` which
+contains the device definitions and its exported methods.
 
 .. code:: python
 
-    >>> list(interface.methods)
+    >>> list(interface.device['methods'])
     ['inc', 'set_led']
 
 Example of a method definition.
 
 .. code:: python
 
-    >>> interface.methods['inc']
+    >>> interface.device['methods']['inc']
     {
       'doc': 'Increment a value.',
       'index': 2,
@@ -145,13 +145,13 @@ Example of a method definition.
         {
           'doc': 'Value.',
           'name': 'a',
-          'fmt': b'h',
+          'fmt': 'h',
           'typename': 'int'
         }
       ],
       'return': {
         'doc': 'a + 1.',
-        'fmt': b'h',
+        'fmt': 'h',
         'typename': 'int'}
     }
 

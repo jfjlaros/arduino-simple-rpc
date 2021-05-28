@@ -61,7 +61,7 @@ def rpc_list(
     """
     with Interface(device, baudrate, wait) as interface:
         if not save:
-            for method in interface.methods.values():
+            for method in interface.device['methods'].values():
                 handle.write(_describe_method(method) + '\n\n\n')
         else:
             interface.save(save)
