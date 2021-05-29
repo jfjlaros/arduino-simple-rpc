@@ -19,4 +19,4 @@ def test_device(request: object, device: str) -> None:
 
 def pytest_configure(config: object) -> None:
     config.addinivalue_line(
-        "markers", "test_device(device): test the given device")
+        'markers', 'test_device(device): test the given device')

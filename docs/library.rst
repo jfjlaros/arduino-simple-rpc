@@ -138,7 +138,7 @@ Additionally, the ``with`` statement is supported for easy opening and closing.
     >>>     interface.ping(10)
 
 The class instance has a public member variable named ``device`` which
-contains the device definitions and its exported methods.
+contains the device definitions and its exported method definitions.
 
 .. code:: python
 

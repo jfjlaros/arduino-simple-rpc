@@ -129,8 +129,8 @@ class _Interface(object):
         :arg handle: Open file handle.
         """
         self.device = load(handle, Loader=FullLoader)
-        _assert_protocol(self.device['protocol'])
-        _assert_version(self.device['version'])
+        _assert_protocol(self.device.get('protocol', ''))
+        _assert_version(self.device.get('version', (0, 0, 0)))
 
     def is_open(self: object) -> bool:
         """Query interface state."""

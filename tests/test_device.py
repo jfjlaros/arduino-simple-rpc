@@ -1,9 +1,12 @@
+from io import StringIO
+
 from pytest import mark
+from yaml import FullLoader, load
 
 from simple_rpc import Interface
 from simple_rpc.simple_rpc import _version
 
-from conf import _devices
+from conf import _devices, _interface
 
 
 class _TestDevice(object):
@@ -56,6 +59,14 @@ class _TestDevice(object):
             self._interface.device['methods']['ping']['parameters'][0]['doc']
             == 'Value.')
 
+    def test_save(self: object) -> None:
+        iface_handle = StringIO()
+
+        self._interface.save(iface_handle)
+        iface_handle.seek(0)
+        device = load(iface_handle, Loader=FullLoader)
+        assert device['methods']['ping']['doc'] == 'Echo a value.'
+
     def test_close(self: object) -> None:
         assert self._interface.is_open()
         assert self._interface.device['methods'] != {}
@@ -64,6 +75,15 @@ class _TestDevice(object):
     def test_post_close(self: object) -> None:
         assert not self._interface.is_open()
         assert self._interface.device['methods'] == {}
+
+    def test_open_load(self: object) -> None:
+        iface_handle = StringIO(_interface)
+
+        self._interface.open(iface_handle)
+        assert (
+            self._interface.device['methods']['ping']['doc'] ==
+            'Echo a value.')
+        assert not self._interface.device['methods'].get('inc', None)
 
 
 @mark.test_device('serial')
