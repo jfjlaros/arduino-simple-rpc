@@ -108,6 +108,31 @@ makes use of the demo_ sketch in the device examples.
     ["b", [11, "c"]]
 
 
+Low throughput networks
+-----------------------
+
+When working with low throughput networks (e.g., LoRa_), device initialisation
+can take a long time. To counteract this problem, it is possible to save the
+interface definition to a file, which can subsequently be used to initialise
+the interface without having to query the device.
+
+An interface definition can be saved to a file using the ``-s`` option of the
+``list`` subcommand.
+
+::
+
+    $ simple_rpc list -s interface.yml /dev/ttyACM0
+
+A saved interface definition can be loaded to skip the initialisation procedure
+by using the ``-l`` option of the ``call`` subcommand.
+
+::
+
+    $ simple_rpc call -l interface.yml /dev/ttyACM0 inc 1
+    2
+
+
+.. _LoRa: https://en.wikipedia.org/wiki/LoRa
 .. _arduino-cli: https://arduino.github.io/arduino-cli/latest/
 .. _demo: https://github.com/jfjlaros/simpleRPC/blob/master/examples/demo/demo.ino
 .. _example: https://simplerpc.readthedocs.io/en/latest/usage.html#example

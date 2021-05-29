@@ -37,6 +37,9 @@ The constructor takes the following parameters.
    * - ``autoconnect``
      - yes
      - Automatically connect.
+   * - ``load``
+     - yes
+     - Load interface definition from file.
 
 Please see the list of handlers_ for a full description of the supported
 interface types.
@@ -99,6 +102,8 @@ The ``Interface`` class provides the following methods.
      - Query device state.
    * - ``call_method()``
      - Execute a method.
+   * - ``save()``
+     - Save the interface definition to a file.
 
 The ``open()`` function is used to connect to a device, this is needed when
 ``autoconnect=False`` is passed to the constructor.
@@ -108,6 +113,14 @@ The ``open()`` function is used to connect to a device, this is needed when
     >>> interface = Interface('/dev/ttyACM0', autoconnect=False)
     >>> # Do something.
     >>> interface.open()
+
+The ``open()`` function accepts the optional parameter ``handle``, which can be
+used to load an interface definition from a file. This can be useful when
+working with low throughput networks.
+
+.. code:: python
+
+    >>> interface.open(open('interface.yml'))
 
 The connection state can be queried using the ``is_open()`` function and it can
 be closed using the ``close()`` function.
@@ -159,6 +172,14 @@ Every exported method will show up as a class method of the ``interface`` class
 instance. These methods can be used like any normal class methods.
 Alternatively, the exported methods can be called by name using the
 ``call_method()`` function.
+
+The ``save()`` function is used to save the interface definition to a file.
+This can later be used by the constructor or the ``open()`` function to
+initialise the interface without having to query the device.
+
+.. code:: python
+
+    >>> interface.save(open('interface.yml', 'w'))
 
 
 Basic usage
@@ -225,7 +246,6 @@ other Object. A similar Object is returned.
 
     >>> interface.object((b'a', (10, b'b')))
     (b'b', (11, b'c'))
-
 
 
 .. _example: https://simplerpc.readthedocs.io/en/latest/usage_device.html#example
