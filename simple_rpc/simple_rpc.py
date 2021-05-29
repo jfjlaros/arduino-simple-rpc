@@ -47,7 +47,6 @@ class _Interface(object):
 
         self._connection = serial_for_url(
             device, do_not_open=True, baudrate=baudrate)
-        self._load = load
         self.device = {
             'endianness': '<',
             'methods': {},
@@ -56,7 +55,7 @@ class _Interface(object):
             'version': (0, 0, 0)}
 
         if autoconnect:
-            self.open()
+            self.open(load)
 
     def __enter__(self: object) -> object:
         return self
@@ -105,11 +104,8 @@ class _Interface(object):
             self._connection, self.device['endianness'], self.device['size_t'],
             obj_type)
 
-    def _get_methods(self: object) -> dict:
-        """Get remote procedure call methods.
-
-        :returns: Method objects indexed by name.
-        """
+    def _get_methods(self: object) -> None:
+        """Get remote procedure call methods."""
         self._select(_list_req)
 
         _assert_protocol(self._read_byte_string().decode())
@@ -122,26 +118,35 @@ class _Interface(object):
         self.device['endianness'], self.device['size_t'] = (
             chr(c) for c in self._read_byte_string())
 
-        methods = {}
         for index, line in enumerate(
                 until(lambda x: x == b'', self._read_byte_string)):
             method = parse_line(index, line)
-            methods[method['name']] = method
+            self.device['methods'][method['name']] = method
 
-        return methods
+    def _load(self: object, handle: TextIO=None) -> None:
+        """Load the interface definition from a file.
+
+        :arg handle: Open file handle.
+        """
+        self.device = load(handle, Loader=FullLoader)
+        _assert_protocol(self.device['protocol'])
+        _assert_version(self.device['version'])
 
     def is_open(self: object) -> bool:
         """Query interface state."""
         pass
 
-    def open(self: object) -> None:
-        """Connect to device."""
+    def open(self: object, handle: TextIO=None) -> None:
+        """Connect to device.
+
+        :arg handle: Open file handle.
+        """
         sleep(self._wait)
 
-        if self._load:
-            self.load()
+        if handle:
+            self._load(handle)
         else:
-            self.device['methods'] = self._get_methods()
+            self._get_methods()
         for method in self.device['methods'].values():
             setattr(
                 self, method['name'], MethodType(make_function(method), self))
@@ -190,12 +195,6 @@ class _Interface(object):
         """
         dump(self.device, handle, width=76, default_flow_style=False)
 
-    def load(self: object) -> None:
-        """Load the interface definition from a file."""
-        self.device = load(self._load, Loader=FullLoader)
-        _assert_protocol(self.device['protocol'])
-        _assert_version(self.device['version'])
-
 
 class SerialInterface(_Interface):
     """Serial simpleRPC interface."""
@@ -204,9 +203,9 @@ class SerialInterface(_Interface):
         return self._connection.isOpen()
 
     @wraps(_Interface.open)
-    def open(self: object) -> None:
+    def open(self: object, handle: TextIO=None) -> None:
         self._open()
-        super().open()
+        super().open(handle)
 
     @wraps(_Interface.close)
     def close(self: object) -> None:
