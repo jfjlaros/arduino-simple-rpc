@@ -1,4 +1,5 @@
 from io import BytesIO
+from typing import Any
 
 from simple_rpc.io import (
     _read_basic, _read_bytes_until, _write_basic, cast, read, write)
@@ -6,7 +7,7 @@ from simple_rpc.io import (
 
 def _test_invariance_basic(
         f_read: callable, f_write: callable, endianness: str, basic_type: str,
-        data: bytes, value: any) -> None:
+        data: bytes, value: Any) -> None:
     stream = BytesIO(data)
     value_ = f_read(stream, endianness, basic_type)
     assert value_ == value
@@ -18,7 +19,7 @@ def _test_invariance_basic(
 
 def _test_invariance(
         f_read: callable, f_write: callable, endianness: str, size_t: str,
-        obj_def: any, data: bytes, obj: any) -> None:
+        obj_def: Any, data: bytes, obj: Any) -> None:
     stream = BytesIO(data)
     obj_ = f_read(stream, endianness, size_t, obj_def)
     assert obj_ == obj

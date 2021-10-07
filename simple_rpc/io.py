@@ -1,4 +1,4 @@
-from typing import BinaryIO
+from typing import Any, BinaryIO
 from struct import calcsize, pack, unpack
 
 
@@ -13,7 +13,7 @@ def _read_bytes_until(stream: BinaryIO, delimiter: bytes) -> bytes:
     return b''.join(until(lambda x: x == delimiter, stream.read, 1))
 
 
-def _read_basic(stream: BinaryIO, endianness: str, basic_type: str) -> any:
+def _read_basic(stream: BinaryIO, endianness: str, basic_type: str) -> Any:
     """Read a value of basic type from a stream.
 
     :arg stream: Stream object.
@@ -31,7 +31,7 @@ def _read_basic(stream: BinaryIO, endianness: str, basic_type: str) -> any:
 
 
 def _write_basic(
-        stream: BinaryIO, endianness: str, basic_type: str, value: any
+        stream: BinaryIO, endianness: str, basic_type: str, value: Any
         ) -> None:
     """Write a value of basic type to a stream.
 
@@ -66,8 +66,8 @@ def cast(c_type: str) -> object:
 
 
 def read(
-        stream: BinaryIO, endianness: str, size_t: str, obj_type: any
-        ) -> any:
+        stream: BinaryIO, endianness: str, size_t: str, obj_type: Any
+        ) -> Any:
     """Read an object from a stream.
 
     :arg stream: Stream object.
@@ -93,8 +93,8 @@ def read_byte_string(stream: BinaryIO) -> bytes:
 
 
 def write(
-        stream: BinaryIO, endianness: str, size_t: str, obj_type: any,
-        obj: any) -> None:
+        stream: BinaryIO, endianness: str, size_t: str, obj_type: Any,
+        obj: Any) -> None:
     """Write an object to a stream.
 
     :arg stream: Stream object.

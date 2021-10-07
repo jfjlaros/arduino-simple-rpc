@@ -1,7 +1,7 @@
 from functools import wraps
 from time import sleep
 from types import MethodType
-from typing import TextIO
+from typing import Any, TextIO
 
 from serial import serial_for_url
 from serial.serialutil import SerialException
@@ -80,7 +80,7 @@ class _Interface(object):
         """
         self._write('B', index)
 
-    def _write(self: object, obj_type: any, obj: any) -> None:
+    def _write(self: object, obj_type: Any, obj: Any) -> None:
         """Provide parameters for a remote procedure call.
 
         :arg obj_type: Type of the parameter.
@@ -93,7 +93,7 @@ class _Interface(object):
     def _read_byte_string(self: object) -> bytes:
         return read_byte_string(self._connection)
 
-    def _read(self: object, obj_type: any) -> any:
+    def _read(self: object, obj_type: Any) -> Any:
         """Read a return value from a remote procedure call.
 
         :arg obj_type: Return type.
@@ -157,7 +157,7 @@ class _Interface(object):
             delattr(self, method)
         self.device['methods'].clear()
 
-    def call_method(self: object, name: str, *args: list) -> any:
+    def call_method(self: object, name: str, *args: list) -> Any:
         """Execute a method.
 
         :arg name: Method name.
@@ -219,7 +219,7 @@ class SocketInterface(_Interface):
         """Decorator for automatic opening and closing of ethernet sockets."""
         @wraps(f)
         def _auto_open_wrapper(
-                self: object, *args: list, **kwargs: dict) -> any:
+                self: object, *args: list, **kwargs: dict) -> Any:
             self._open()
             result = f(self, *args, **kwargs)
             self._close()

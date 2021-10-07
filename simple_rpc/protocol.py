@@ -1,9 +1,9 @@
-from typing import BinaryIO
+from typing import Any, BinaryIO
 
 from .io import cast, read_byte_string
 
 
-def _parse_type(type_str: bytes) -> any:
+def _parse_type(type_str: bytes) -> Any:
     """Parse a type definition string.
 
     :arg type_str: Type definition string.
@@ -34,7 +34,7 @@ def _parse_type(type_str: bytes) -> any:
     return obj_type[0]
 
 
-def _type_name(obj_type: any) -> str:
+def _type_name(obj_type: Any) -> str:
     """Python type name of a C object type.
 
     :arg obj_type: C object type.
