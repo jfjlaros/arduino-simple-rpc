@@ -113,7 +113,7 @@ def write(
 
 
 def until(
-        condition: callable, f: callable, *args: list, **kwargs: dict) -> None:
+        condition: callable, f: callable, *args: Any, **kwargs: Any) -> None:
     """Call {f(*args, **kwargs)} until {condition} is true.
 
     :arg condition: Function that inspects the result of {f}.

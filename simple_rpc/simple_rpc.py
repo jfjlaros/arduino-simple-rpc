@@ -157,7 +157,7 @@ class _Interface(object):
             delattr(self, method)
         self.device['methods'].clear()
 
-    def call_method(self: object, name: str, *args: list) -> Any:
+    def call_method(self: object, name: str, *args: Any) -> Any:
         """Execute a method.
 
         :arg name: Method name.
@@ -219,7 +219,7 @@ class SocketInterface(_Interface):
         """Decorator for automatic opening and closing of ethernet sockets."""
         @wraps(f)
         def _auto_open_wrapper(
-                self: object, *args: list, **kwargs: dict) -> Any:
+                self: object, *args: Any, **kwargs: Any) -> Any:
             self._open()
             result = f(self, *args, **kwargs)
             self._close()
@@ -240,7 +240,7 @@ class Interface(object):
     """Generic simpleRPC interface wrapper."""
     @wraps(_Interface.__init__)
     def __new__(
-            cls: object, device: str, *args: list, **kwargs: dict) -> object:
+            cls: object, device: str, *args: Any, **kwargs: Any) -> object:
         if device.startswith('socket'):
             return SocketInterface(device, *args, **kwargs)
         return SerialInterface(device, *args, **kwargs)
