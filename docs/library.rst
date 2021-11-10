@@ -247,6 +247,18 @@ other Object. A similar Object is returned.
     >>> interface.object((b'a', (10, b'b')))
     (b'b', (11, b'c'))
 
+.. note::
+
+    In this implementation, the ``Tuple`` type is regarded as a flat sequence
+    of elements, not as a separate type. The ``Object`` type is used to assign
+    this sequence of elements to a Python ``tuple`` and the ``Vector`` type is
+    used to assign this sequence of elements to a Python ``list``. Bare tuples
+    are not supported in this implementation.
+
+    Using Tuples may lead to some other counter intuitive results. For example,
+    a Vector of length *l* containing Tuples of size *n* is received as a list
+    containing *l·n* elements.
+
 
 .. _example: https://simplerpc.readthedocs.io/en/latest/usage_device.html#example
 .. _handlers: https://pyserial.readthedocs.io/en/latest/url_handlers.html
