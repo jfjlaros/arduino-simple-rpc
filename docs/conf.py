@@ -1,7 +1,3 @@
-from subprocess import call
-
-call('pip install six sphinx-argparse ..', shell=True)
-
 from simple_rpc import _get_metadata
 
 

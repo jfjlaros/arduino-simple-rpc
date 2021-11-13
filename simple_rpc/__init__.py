@@ -1,11 +1,14 @@
-from pkg_resources import get_distribution
+from pkg_resources import DistributionNotFound, get_distribution
 
 from .extras import dict_to_object, object_to_dict
 from .simple_rpc import Interface, SerialInterface, SocketInterface
 
 
 def _get_metadata(name: str) -> str:
-    pkg = get_distribution('arduino_simple_rpc')
+    try:
+        pkg = get_distribution('arduino_simple_rpc')
+    except DistributionNotFound:
+        pkg = get_distribution('simple_rpc')
 
     for line in pkg.get_metadata_lines(pkg.PKG_INFO):
         if line.startswith('{}: '.format(name)):
