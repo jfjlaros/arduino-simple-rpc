@@ -85,16 +85,12 @@ def read(
     print(f"reading: {obj_type}")
 
     if isinstance(obj_type, np.ndarray):
-        # print(f"reading array: {size_t}, {obj_type}, {obj_type.itemsize}")
         length = _read_basic(stream, endianness, size_t)
-        # print(f"length: {length}")
         return np.frombuffer(
             stream.read(length * obj_type.itemsize), obj_type.dtype)
     
     if isinstance(obj_type, list):
-        # print(f"reading list: {obj_type}")
         length = _read_basic(stream, endianness, size_t)
-        # print(f"length: {length}")
         
         return [
             read(stream, endianness, size_t, item) for _ in range(length)
@@ -124,10 +120,8 @@ def write(
     """
 
     if isinstance(obj_type, list):
-        # print(f" size_t: {size_t}, len:{len(obj) // len(obj_type)}")
         _write_basic(stream, endianness, size_t, len(obj) // len(obj_type))
     if isinstance(obj_type, np.ndarray):
-        # print(f"writing array: {size_t}, {obj.size}, {obj.dtype}, obj_tpye: {obj_type}")
         _write_basic(stream, endianness, size_t, obj.size)
         _write_basic(stream, endianness, obj_type, obj)
     elif isinstance(obj_type, list) or isinstance(obj_type, tuple):

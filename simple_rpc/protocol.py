@@ -18,7 +18,7 @@ dtype_map = {
     'f': np.float32,
     'd': np.float64,
     '?': np.bool_,
-    'c': np.byte  # Note: 'c' in struct is a single byte; for strings, consider np.bytes_ or np.chararray.
+    'c': np.byte
 }
 
 def _parse_type(type_str: bytes) -> Any:
