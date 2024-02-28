@@ -1,5 +1,6 @@
 from functools import wraps
 from time import sleep
+import numpy as np
 from types import MethodType
 from typing import Any, TextIO
 
@@ -86,6 +87,7 @@ class _Interface(object):
         :arg obj_type: Type of the parameter.
         :arg obj: Value of the parameter.
         """
+        # print(f"write obj_type: {obj_type}")
         write(
             self._connection, self.device['endianness'], self.device['size_t'],
             obj_type, obj)
@@ -100,6 +102,7 @@ class _Interface(object):
 
         :returns: Return value.
         """
+        # print(f"read obj_type: {obj_type}")
         return read(
             self._connection, self.device['endianness'], self.device['size_t'],
             obj_type)
@@ -180,11 +183,15 @@ class _Interface(object):
 
         # Provide parameters (if any).
         if method['parameters']:
+            # print(f"method['name']: {method['name']}")
+            # print(f"method['parameters']: {method['parameters']}")
             for index, parameter in enumerate(method['parameters']):
                 self._write(parameter['fmt'], args[index])
 
         # Read return value (if any).
-        if method['return']['fmt']:
+        if method['return']['fmt'] or isinstance(method['return']['fmt'], np.ndarray) :
+            # print(f"method['name']: {method['name']}")
+            # print(f"method['return']['fmt']: {method['return']['fmt']}")
             return self._read(method['return']['fmt'])
         return None
 
