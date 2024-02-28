@@ -1,3 +1,4 @@
+import numpy as np
 from typing import Any, BinaryIO
 from struct import calcsize, pack, unpack
 
@@ -43,9 +44,12 @@ def _write_basic(
     if basic_type == 's':
         stream.write(value + b'\0')
         return
+    elif isinstance(basic_type, np.ndarray):
+        print(f"writing array: {basic_type.itemsize}, {value.size}")
+        stream.write(value.tobytes())
+        return
 
     full_type = (endianness + basic_type).encode('utf-8')
-
     stream.write(pack(full_type, cast(basic_type)(value)))
 
 
@@ -77,14 +81,25 @@ def read(
 
     :returns: Object of type {obj_type}.
     """
+
+    print(f"reading: {obj_type}")
+
+    if isinstance(obj_type, np.ndarray):
+        length = _read_basic(stream, endianness, size_t)
+        return np.frombuffer(
+            stream.read(length * obj_type.itemsize), obj_type.dtype)
+    
     if isinstance(obj_type, list):
         length = _read_basic(stream, endianness, size_t)
+        
         return [
             read(stream, endianness, size_t, item) for _ in range(length)
             for item in obj_type]
+    
     if isinstance(obj_type, tuple):
         return tuple(
             read(stream, endianness, size_t, item) for item in obj_type)
+    
     return _read_basic(stream, endianness, obj_type)
 
 
@@ -103,9 +118,13 @@ def write(
     :arg obj_type: Type object.
     :arg obj: Object of type {obj_type}.
     """
+
     if isinstance(obj_type, list):
         _write_basic(stream, endianness, size_t, len(obj) // len(obj_type))
-    if isinstance(obj_type, list) or isinstance(obj_type, tuple):
+    if isinstance(obj_type, np.ndarray):
+        _write_basic(stream, endianness, size_t, obj.size)
+        _write_basic(stream, endianness, obj_type, obj)
+    elif isinstance(obj_type, list) or isinstance(obj_type, tuple):
         for item_type, item in zip(obj_type * len(obj), obj):
             write(stream, endianness, size_t, item_type, item)
     else:
