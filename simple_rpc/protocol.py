@@ -1,7 +1,25 @@
 from typing import Any, BinaryIO
-
+import numpy as np
 from .io import cast, read_byte_string
+from itertools import chain
 
+
+dtype_map = {
+    'b': np.int8,
+    'B': np.uint8,
+    'h': np.int16,
+    'H': np.uint16,
+    'i': np.int32,
+    'I': np.uint32,
+    'l': np.int32,
+    'L': np.uint32,
+    'q': np.int64,
+    'Q': np.uint64,
+    'f': np.float32,
+    'd': np.float64,
+    '?': np.bool_,
+    'c': np.byte
+}
 
 def _parse_type(type_str: bytes) -> Any:
     """Parse a type definition string.
@@ -15,14 +33,20 @@ def _parse_type(type_str: bytes) -> Any:
 
         for token in tokens:
             if token == b'[':
-                obj_type.append(_construct_type(tokens))
+                next_token = next(tokens, None)
+                if next_token not in (b'[', b'(') and next_token is not None:
+                    dtype = _get_dtype(next_token)
+                    obj_type.append(np.array([], dtype=dtype))
+                    assert next(tokens, None) == b']', "Expected closing bracket"
+                else:
+                    tokens = chain([next_token], tokens)
+                    obj_type.extend(_construct_type(tokens))
             elif token == b'(':
                 obj_type.append(tuple(_construct_type(tokens)))
             elif token in (b')', b']'):
                 break
             else:
                 obj_type.append(token.decode())
-
         return obj_type
 
     obj_type = _construct_type((bytes([char]) for char in type_str))
@@ -32,6 +56,15 @@ def _parse_type(type_str: bytes) -> Any:
     if not obj_type:
         return ''
     return obj_type[0]
+
+def _get_dtype(type_str: bytes) -> Any:
+    """Get the NumPy data type of a type definition string.
+
+    :arg type_str: Type definition string.
+
+    :returns: NumPy data type.
+    """
+    return dtype_map.get(type_str, np.byte)
 
 
 def _type_name(obj_type: Any) -> str:
