@@ -186,6 +186,9 @@ class _Interface(object):
         # Read return value (if any).
         if method['return']['fmt']:
             return self._read(method['return']['fmt'])
+
+        # A `void` method writes a 0 for synchronisation purposes.
+        self._read('B')
         return None
 
     def save(self: object, handle: TextIO) -> None:
