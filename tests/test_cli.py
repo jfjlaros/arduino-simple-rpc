@@ -6,7 +6,7 @@ from yaml import FullLoader, load
 from simple_rpc.cli import _describe_method, rpc_call, rpc_list
 from simple_rpc.extras import json_utf8_decode, json_utf8_encode
 
-from conf import _devices, _interface
+from .conf import _devices, _interface
 
 
 def test_json_utf8_encode() -> None:
@@ -36,7 +36,7 @@ def test_describe_method() -> None:
 def test_rpc_list() -> None:
     handle = StringIO()
 
-    rpc_list(handle, _devices['serial'], 9600, 1, None)
+    rpc_list(handle, _devices['serial'], 9600, 2, None)
     assert 'ping data\n    Echo a value.\n' in handle.getvalue()
 
 
@@ -45,7 +45,7 @@ def test_rpc_list_save() -> None:
     handle = StringIO()
     iface_handle = StringIO()
 
-    rpc_list(handle, _devices['serial'], 9600, 1, iface_handle)
+    rpc_list(handle, _devices['serial'], 9600, 2, iface_handle)
     iface_handle.seek(0)
     device = load(iface_handle, Loader=FullLoader)
     assert device['methods']['ping']['doc'] == 'Echo a value.'
@@ -55,7 +55,7 @@ def test_rpc_list_save() -> None:
 def test_rpc_call() -> None:
     handle = StringIO()
 
-    rpc_call(handle, _devices['serial'], 9600, 1, None, 'ping', ['10'])
+    rpc_call(handle, _devices['serial'], 9600, 2, None, 'ping', ['10'])
     assert handle.getvalue() == '10\n'
 
 
@@ -65,7 +65,7 @@ def test_rpc_call_load() -> None:
     iface_handle = StringIO(_interface)
 
     rpc_call(
-        handle, _devices['serial'], 9600, 1, iface_handle, 'ping', ['10'])
+        handle, _devices['serial'], 9600, 2, iface_handle, 'ping', ['10'])
     assert handle.getvalue() == '10\n'
 
 
@@ -76,7 +76,7 @@ def test_rpc_call_load_() -> None:
 
     try:
         rpc_call(
-            handle, _devices['serial'], 9600, 1, iface_handle, 'inc', ['1'])
+            handle, _devices['serial'], 9600, 2, iface_handle, 'inc', ['1'])
     except ValueError as error:
         assert str(error) == 'invalid method name: inc'
     else:

@@ -13,7 +13,7 @@ from .protocol import parse_line
 
 
 _protocol = 'simpleRPC'
-_version = (3, 0, 0)
+_version = (4, 0, 0)
 
 _list_req = 0xff
 

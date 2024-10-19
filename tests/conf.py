@@ -2,7 +2,7 @@ from simple_rpc.simple_rpc import _version
 
 
 _devices = {
-    'serial': '/dev/ttyACM0',
+    'serial': '/dev/ttyUSB0',
     'wifi': 'socket://192.168.21.53:1025',
     'bt': '/dev/rfcomm0'}
 _interface = """
@@ -24,7 +24,7 @@ methods:
 protocol: simpleRPC
 size_t: H
 version: !!python/tuple
-- 3
+- 4
 - 0
 - 0
 """.format(''.join(map('- {}\n'.format, _version)))

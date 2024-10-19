@@ -6,7 +6,7 @@ from yaml import FullLoader, load
 from simple_rpc import Interface
 from simple_rpc.simple_rpc import _version
 
-from conf import _devices, _interface
+from .conf import _devices, _interface
 
 
 class _TestDevice(object):

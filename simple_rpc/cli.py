@@ -100,8 +100,7 @@ def _arg_parser() -> object:
     common_parser.add_argument(
         'device', metavar='DEVICE', type=str, help='device')
     common_parser.add_argument(
-        '-b', dest='baudrate', type=int, default=9600,
-        help='baud rate')
+        '-b', dest='baudrate', type=int, default=9600, help='baud rate')
     common_parser.add_argument(
         '-w', dest='wait', type=int, default=2,
         help='time before communication starts')

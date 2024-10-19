@@ -3,7 +3,7 @@ from sys import stdout
 from simple_rpc import Interface
 
 
-device = '/dev/ttyACM0'
+device = '/dev/ttyUSB0'
 cycles = 20
 
 
@@ -11,8 +11,6 @@ stdout.write('Initialising... ')
 stdout.flush()
 interface = Interface(device)
 stdout.write('done.\n\n')
-
-stdout.write('Protocol version: {}\n\n'.format(interface._version))
 
 i = 0
 while i < 10:

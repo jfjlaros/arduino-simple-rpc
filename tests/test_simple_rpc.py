@@ -2,7 +2,7 @@ from simple_rpc.simple_rpc import (
     SerialInterface, SocketInterface, Interface,
     _assert_protocol, _assert_version, _protocol, _version)
 
-from conf import _devices
+from .conf import _devices
 
 
 def test_assert_protocol_pass() -> None:
