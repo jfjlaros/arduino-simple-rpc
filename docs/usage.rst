@@ -135,5 +135,5 @@ by using the ``-l`` option of the ``call`` subcommand.
 .. _LoRa: https://en.wikipedia.org/wiki/LoRa
 .. _arduino-cli: https://arduino.github.io/arduino-cli/latest/
 .. _demo: https://github.com/jfjlaros/simpleRPC/blob/master/examples/demo/demo.ino
-.. _example: https://simplerpc.readthedocs.io/en/latest/usage.html#example
-.. _handlers: https://pyserial.readthedocs.io/en/latest/url_handlers.html
+.. _example: https://simplerpc.readthedocs.io/en/stable/usage.html#example
+.. _handlers: https://pyserial.readthedocs.io/en/stable/url_handlers.html

@@ -12,5 +12,5 @@ simpleRPC protocol.
 
 
 .. _Arduino: https://www.arduino.cc
-.. _motivation: https://simplerpc.readthedocs.io/en/latest/introduction.html#motivation
+.. _motivation: https://simplerpc.readthedocs.io/en/stable/introduction.html#motivation
 .. _simpleRPC: https://simpleRPC.readthedocs.io

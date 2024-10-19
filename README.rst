@@ -5,8 +5,8 @@ Arduino simpleRPC API client library and CLI
    :target: https://github.com/jfjlaros/arduino-simple-rpc/graphs/commit-activity
 .. image:: https://github.com/jfjlaros/arduino-simple-rpc/actions/workflows/python-package.yml/badge.svg
    :target: https://github.com/jfjlaros/arduino-simple-rpc/actions/workflows/python-package.yml
-.. image:: https://readthedocs.org/projects/arduino-simple-rpc/badge/?version=latest
-   :target: https://arduino-simple-rpc.readthedocs.io/en/latest
+.. image:: https://readthedocs.org/projects/arduino-simple-rpc/badge/?version=stable
+   :target: https://arduino-simple-rpc.readthedocs.io
 .. image:: https://img.shields.io/github/release-date/jfjlaros/arduino-simple-rpc.svg
    :target: https://github.com/jfjlaros/arduino-simple-rpc/releases
 .. image:: https://img.shields.io/github/release/jfjlaros/arduino-simple-rpc.svg
@@ -91,5 +91,5 @@ the Usage_ and Library_ sections.
 .. _Arduino: https://www.arduino.cc
 .. _simpleRPC: https://simpleRPC.readthedocs.io
 .. _ReadTheDocs: https://arduino-simple-rpc.readthedocs.io
-.. _Usage: https://arduino-simple-rpc.readthedocs.io/en/latest/usage.html
-.. _Library: https://arduino-simple-rpc.readthedocs.io/en/latest/library.html
+.. _Usage: https://arduino-simple-rpc.readthedocs.io/en/stable/usage.html
+.. _Library: https://arduino-simple-rpc.readthedocs.io/en/stable/library.html

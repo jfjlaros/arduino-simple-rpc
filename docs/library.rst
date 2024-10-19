@@ -260,5 +260,5 @@ other Object. A similar Object is returned.
     containing *l·n* elements.
 
 
-.. _example: https://simplerpc.readthedocs.io/en/latest/usage_device.html#example
-.. _handlers: https://pyserial.readthedocs.io/en/latest/url_handlers.html
+.. _example: https://simplerpc.readthedocs.io/en/stable/usage_device.html#example
+.. _handlers: https://pyserial.readthedocs.io/en/stable/url_handlers.html
