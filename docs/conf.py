@@ -1,11 +1,14 @@
-from simple_rpc import _get_metadata
+from importlib.metadata import metadata
 
 
-author = _get_metadata('Author')
-copyright = _get_metadata('Author')
-project = _get_metadata('Name')
-release = _get_metadata('Version')
+_package_metadata = metadata('arduino_simple_rpc')
+
+author = _package_metadata['Author']
+copyright = '2019, {}'.format(author)
+project = _package_metadata['Name']
+release = _package_metadata['Version']
 
 autoclass_content = 'both'
-extensions = ['sphinx.ext.autodoc', 'sphinx_autodoc_typehints', 'sphinxarg.ext']
+extensions = [
+  'sphinx.ext.autodoc', 'sphinx_autodoc_typehints', 'sphinxarg.ext']
 master_doc = 'index'
